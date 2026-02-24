@@ -1,3 +1,5 @@
+<!-- @format -->
+
 # Getting Started with TaskChain
 
 ## Installation
@@ -27,6 +29,12 @@ class UserData:
 # Initialize Context
 data = UserData(email="test@example.com")
 ctx = ExecutionContext(data=data)
+
+# You can serialize the context to JSON for storage
+json_state = ctx.to_json()
+
+# And deserialize it later, automatically parsing back the UserData class (or a Pydantic Model)
+restored_ctx = ExecutionContext.from_json(json_state, data_cls=UserData)
 ```
 
 ### 2. Define Tasks

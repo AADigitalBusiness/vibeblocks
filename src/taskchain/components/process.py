@@ -1,3 +1,7 @@
+"""
+Process component handling linear execution of multiple tasks.
+"""
+
 import inspect
 from typing import List, Union, Awaitable, TypeVar
 
@@ -49,6 +53,7 @@ class Process(Executable[T]):
                 raise ProcessExecutionError(f"Process '{self.name}' failed") from e
 
         ctx.log_event("INFO", self.name, "Process Completed")
+        ctx.completed_steps.add(self.name)
         return Outcome(status="SUCCESS", context=ctx, errors=[], duration_ms=0)
 
     async def _execute_async(self, ctx: ExecutionContext[T]) -> Outcome[T]:
@@ -67,6 +72,7 @@ class Process(Executable[T]):
                 raise ProcessExecutionError(f"Process '{self.name}' failed") from e
 
         ctx.log_event("INFO", self.name, "Process Completed")
+        ctx.completed_steps.add(self.name)
         return Outcome(status="SUCCESS", context=ctx, errors=[], duration_ms=0)
 
     def compensate(self, ctx: ExecutionContext[T]) -> Union[None, Awaitable[None]]:
@@ -76,7 +82,9 @@ class Process(Executable[T]):
         ctx.log_event("INFO", self.name, "Compensating Process")
         for step in reversed(self.steps):
             if self._did_step_succeed(ctx, step):
-                step.compensate(ctx)
+                res = step.compensate(ctx)
+                if inspect.isawaitable(res):
+                    raise RuntimeError(f"Step '{getattr(step, 'name', 'Unknown')}' returned an async compensation in a sync process. Use AsyncRunner.")
         return None
 
     async def _compensate_async(self, ctx: ExecutionContext[T]) -> None:
@@ -93,9 +101,4 @@ class Process(Executable[T]):
         if not name:
             return False
 
-        # Check for completion event
-        # We search in reverse to find the most recent execution
-        for event in reversed(ctx.trace):
-            if event.source == name and event.message.endswith("Completed"):
-                return True
-        return False
+        return name in ctx.completed_steps

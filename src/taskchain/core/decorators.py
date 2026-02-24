@@ -1,3 +1,7 @@
+"""
+Decorators for wrapping user functions into library components.
+"""
+
 from typing import Callable, Optional, List, Type, Any, TypeVar, Union
 from taskchain.components.task import Task
 from taskchain.policies.retry import RetryPolicy, BackoffStrategy
@@ -17,7 +21,19 @@ def task(
     give_up_on: Optional[List[Type[Exception]]] = None
 ) -> Callable[[Callable[[ExecutionContext[Any]], Any]], Task[Any]]:
     """
-    Decorator to convert a function into a Task.
+    Decorator to convert a standard function into a `Task` component.
+
+    Parameters:
+        name: Name of the task (defaults to function name).
+        retry_policy: Highly customizable policy object. Overrides quick config args when provided.
+        undo: A callable that reverts changes made by the task.
+
+    Quick Retry Config Args (only used if `retry_policy` is NOT provided):
+        max_attempts: Maximum total attempts before failing permanently (default: 1).
+        delay: Base wait delay in seconds between retries (default: 1.0).
+        backoff: Wait increment strategy (FIXED, LINEAR, or EXPONENTIAL) (default: FIXED).
+        retry_on: List of Exception classes that trigger retries (default: [Exception]).
+        give_up_on: List of Exception classes that explicitly skip retries (default: []).
     """
     def decorator(func: Callable[[ExecutionContext[Any]], Any]) -> Task[Any]:
         nonlocal name, retry_policy

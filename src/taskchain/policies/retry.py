@@ -1,12 +1,25 @@
+"""
+Retry logic and backoff strategies.
+Provides classes to handle transient errors in tasks and workflows.
+"""
+
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import Type, List
 import random
 
 class BackoffStrategy(Enum):
+    """
+    Defines how the delay between retry intervals grows.
+    """
     FIXED = auto()
+    """Fixed delay across all attempts (delay = base_delay)."""
+    
     LINEAR = auto()
+    """Delays multiply linearly with the attempt's loop iteration (delay = base_delay * attempt_num)."""
+    
     EXPONENTIAL = auto()
+    """Delays multiply using base 2 to the power of the attempt num (delay = base_delay * (2^(attempt_num-1)))."""
 
 @dataclass
 class RetryPolicy:

@@ -5,6 +5,13 @@ from typing import Any
 def is_async_callable(obj: Any) -> bool:
     """
     Determines if an object is an async callable (coroutine function).
+    
+    Warning:
+        This only detects functions strictly declared as `async def` or wrappers
+        around them. If a regular `def` function manually returns a coroutine 
+        (e.g., returning `asyncio.sleep()`), this function will return False, 
+        and it could fail at execution time in synchronous environments.
+        
     Handles:
     - async def functions
     - functools.partial wrapping async functions
