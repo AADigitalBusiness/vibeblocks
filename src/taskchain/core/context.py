@@ -9,6 +9,7 @@ import dataclasses
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Generic, TypeVar, Literal, List, Dict, Any, Type, Optional, Set
+import warnings
 from taskchain.utils import serialization
 
 T = TypeVar("T")
@@ -87,27 +88,27 @@ class ExecutionContext(Generic[T]):
             if hasattr(data_cls, "model_validate"):
                 try:
                     data_obj = data_cls.model_validate(raw_data)
-                except Exception:
-                    pass
+                except Exception as e:
+                    warnings.warn(f"Failed to deserialize using Pydantic v2 model_validate: {e}", RuntimeWarning)
             # 2. Try Pydantic v1 support
             elif hasattr(data_cls, "parse_obj"):
                 try:
                     data_obj = data_cls.parse_obj(raw_data) # type: ignore
-                except Exception:
-                    pass
+                except Exception as e:
+                    warnings.warn(f"Failed to deserialize using Pydantic v1 parse_obj: {e}", RuntimeWarning)
             # 3. Try standard Dataclass dictionary unpacking
             elif dataclasses.is_dataclass(data_cls) and isinstance(raw_data, dict):
                 try:
                     data_obj = data_cls(**raw_data)
-                except TypeError:
-                    pass
+                except TypeError as e:
+                    warnings.warn(f"Failed to deserialize dataclass: {e}", RuntimeWarning)
             # 4. Fallback: Standard instantiation if signature matches dict keys
             elif isinstance(raw_data, dict):
                  try:
                      # Risky, but better than silent fail when someone uses typed dicts.
                      data_obj = data_cls(**raw_data)
-                 except TypeError:
-                     pass
+                 except TypeError as e:
+                     warnings.warn(f"Failed to deserialize using standard instantiation: {e}", RuntimeWarning)
 
         return cls(
             data=data_obj,

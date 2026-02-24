@@ -4,6 +4,7 @@ Handles high-level failure policies.
 """
 
 import inspect
+import time
 from typing import List, Union, Awaitable, TypeVar, Literal
 
 from taskchain.core.context import ExecutionContext
@@ -36,6 +37,7 @@ class Workflow(Executable[T]):
         return self._execute_sync(ctx)
 
     def _execute_sync(self, ctx: ExecutionContext[T]) -> Outcome[T]:
+        start_time = time.perf_counter_ns()
         ctx.log_event("INFO", self.name, "Workflow Started")
         collected_errors = []
 
@@ -45,6 +47,8 @@ class Workflow(Executable[T]):
 
                 # Check for async in sync context
                 if inspect.isawaitable(result):
+                    if inspect.iscoroutine(result):
+                        result.close()
                     raise RuntimeError(f"Step '{getattr(step, 'name', 'Unknown')}' returned a coroutine in a sync workflow. Use AsyncRunner.")
 
                 if isinstance(result, Outcome):
@@ -52,7 +56,8 @@ class Workflow(Executable[T]):
                         # Handle failure
                         if self.strategy == FailureStrategy.ABORT:
                             ctx.log_event("ERROR", self.name, f"Workflow Aborted due to failure in step '{getattr(step, 'name', 'Unknown')}'")
-                            return Outcome("ABORTED", ctx, result.errors)
+                            duration = (time.perf_counter_ns() - start_time) // 1_000_000
+                            return Outcome("ABORTED", ctx, result.errors, duration_ms=duration)
 
                         elif self.strategy == FailureStrategy.CONTINUE:
                             ctx.log_event("ERROR", self.name, f"Workflow Continuing after failure in step '{getattr(step, 'name', 'Unknown')}'")
@@ -65,27 +70,34 @@ class Workflow(Executable[T]):
                             # Compensate the current failing step (it handles its own partial state natively)
                             res = step.compensate(ctx)
                             if inspect.isawaitable(res):
+                                if inspect.iscoroutine(res):
+                                    res.close()
                                 raise RuntimeError(f"Step '{getattr(step, 'name', 'Unknown')}' returned an async compensation in a sync workflow. Use AsyncRunner.")
 
                             # Compensate previous steps
                             self.compensate(ctx)
-                            return Outcome("FAILED", ctx, result.errors)
+                            duration = (time.perf_counter_ns() - start_time) // 1_000_000
+                            return Outcome("FAILED", ctx, result.errors, duration_ms=duration)
 
             except Exception as e:
                 ctx.log_event("ERROR", self.name, f"Workflow Error: {str(e)}")
                 collected_errors.append(e)
 
                 if self.strategy == FailureStrategy.ABORT:
-                    return Outcome("ABORTED", ctx, collected_errors)
+                    duration = (time.perf_counter_ns() - start_time) // 1_000_000
+                    return Outcome("ABORTED", ctx, collected_errors, duration_ms=duration)
                 elif self.strategy == FailureStrategy.CONTINUE:
                     continue
                 elif self.strategy == FailureStrategy.COMPENSATE:
                     res = step.compensate(ctx)
                     if inspect.isawaitable(res):
+                        if inspect.iscoroutine(res):
+                            res.close()
                         raise RuntimeError(f"Step '{getattr(step, 'name', 'Unknown')}' returned an async compensation in a sync workflow. Use AsyncRunner.")
                         
                     self.compensate(ctx)
-                    return Outcome("FAILED", ctx, collected_errors)
+                    duration = (time.perf_counter_ns() - start_time) // 1_000_000
+                    return Outcome("FAILED", ctx, collected_errors, duration_ms=duration)
 
         final_status: Literal["SUCCESS", "FAILED"] = "FAILED" if collected_errors else "SUCCESS"
         ctx.log_event("INFO", self.name, f"Workflow Completed with status {final_status}")
@@ -93,9 +105,11 @@ class Workflow(Executable[T]):
         if final_status == "SUCCESS":
             ctx.completed_steps.add(self.name)
             
-        return Outcome(final_status, ctx, collected_errors)
+        duration = (time.perf_counter_ns() - start_time) // 1_000_000
+        return Outcome(final_status, ctx, collected_errors, duration_ms=duration)
 
     async def _execute_async(self, ctx: ExecutionContext[T]) -> Outcome[T]:
+        start_time = time.perf_counter_ns()
         ctx.log_event("INFO", self.name, "Workflow Started (Async)")
         collected_errors = []
 
@@ -109,7 +123,8 @@ class Workflow(Executable[T]):
                     if result.status != "SUCCESS":
                          if self.strategy == FailureStrategy.ABORT:
                              ctx.log_event("ERROR", self.name, f"Workflow Aborted due to failure")
-                             return Outcome("ABORTED", ctx, result.errors)
+                             duration = (time.perf_counter_ns() - start_time) // 1_000_000
+                             return Outcome("ABORTED", ctx, result.errors, duration_ms=duration)
 
                          elif self.strategy == FailureStrategy.CONTINUE:
                              ctx.log_event("ERROR", self.name, f"Workflow Continuing after failure")
@@ -124,14 +139,16 @@ class Workflow(Executable[T]):
 
                              res = self.compensate(ctx)
                              if inspect.isawaitable(res): await res
-                             return Outcome("FAILED", ctx, result.errors)
+                             duration = (time.perf_counter_ns() - start_time) // 1_000_000
+                             return Outcome("FAILED", ctx, result.errors, duration_ms=duration)
 
             except Exception as e:
                 ctx.log_event("ERROR", self.name, f"Workflow Error: {str(e)}")
                 collected_errors.append(e)
 
                 if self.strategy == FailureStrategy.ABORT:
-                    return Outcome("ABORTED", ctx, collected_errors)
+                    duration = (time.perf_counter_ns() - start_time) // 1_000_000
+                    return Outcome("ABORTED", ctx, collected_errors, duration_ms=duration)
                 elif self.strategy == FailureStrategy.CONTINUE:
                     continue
                 elif self.strategy == FailureStrategy.COMPENSATE:
@@ -140,7 +157,8 @@ class Workflow(Executable[T]):
 
                     res = self.compensate(ctx)
                     if inspect.isawaitable(res): await res
-                    return Outcome("FAILED", ctx, collected_errors)
+                    duration = (time.perf_counter_ns() - start_time) // 1_000_000
+                    return Outcome("FAILED", ctx, collected_errors, duration_ms=duration)
 
         final_status: Literal["SUCCESS", "FAILED"] = "FAILED" if collected_errors else "SUCCESS"
         ctx.log_event("INFO", self.name, f"Workflow Completed with status {final_status}")
@@ -148,7 +166,8 @@ class Workflow(Executable[T]):
         if final_status == "SUCCESS":
             ctx.completed_steps.add(self.name)
             
-        return Outcome(final_status, ctx, collected_errors)
+        duration = (time.perf_counter_ns() - start_time) // 1_000_000
+        return Outcome(final_status, ctx, collected_errors, duration_ms=duration)
 
     def compensate(self, ctx: ExecutionContext[T]) -> Union[None, Awaitable[None]]:
         if self.is_async:
@@ -159,6 +178,8 @@ class Workflow(Executable[T]):
             if self._did_step_succeed(ctx, step):
                 res = step.compensate(ctx)
                 if inspect.isawaitable(res):
+                    if inspect.iscoroutine(res):
+                        res.close()
                     raise RuntimeError(f"Step '{getattr(step, 'name', 'Unknown')}' returned an async compensation in a sync workflow. Use AsyncRunner.")
         return None
 

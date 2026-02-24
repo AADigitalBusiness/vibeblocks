@@ -62,4 +62,4 @@ ignore = []
 addopts = "--strict-markers"
 testpaths = ["tests"]
 pythonpath = ["src"]
-asyncio_mode = "auto"
+# asyncio_mode = "auto"

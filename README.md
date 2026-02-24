@@ -24,18 +24,14 @@ pip install taskchain
 
 ```python
 from dataclasses import dataclass
-from taskchain.core.context import ExecutionContext
-from taskchain.core.decorators import task
-from taskchain.components.workflow import Workflow
-from taskchain.policies.failure import FailureStrategy
-from taskchain.runtime.runner import SyncRunner
+from taskchain import task, Workflow, ExecutionContext, FailureStrategy, SyncRunner
 
 @dataclass
 class UserData:
     email: str
     status: str = "pending"
 
-@task()
+@task
 def validate_email(ctx: ExecutionContext[UserData]):
     if "@" not in ctx.data.email:
         raise ValueError("Invalid email")
@@ -45,12 +41,14 @@ def create_user(ctx: ExecutionContext[UserData]):
     ctx.data.status = "created"
     print(f"User {ctx.data.email} created.")
 
+# Organize tasks into a workflow
 workflow = Workflow(
-    "Onboarding",
-    [validate_email, create_user],
+    name="Onboarding",
+    steps=[validate_email, create_user],
     strategy=FailureStrategy.COMPENSATE
 )
 
+# Initialize context and run
 ctx = ExecutionContext(UserData(email="test@example.com"))
 outcome = SyncRunner().run(workflow, ctx)
 

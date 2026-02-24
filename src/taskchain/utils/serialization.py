@@ -8,6 +8,10 @@ from typing import Any, Type, TypeVar, Union
 T = TypeVar("T")
 
 def _default_encoder(obj: Any) -> Any:
+    if isinstance(obj, set):
+        return list(obj)
+    if isinstance(obj, Exception):
+        return str(obj)
     if isinstance(obj, (datetime, date)):
         return obj.isoformat()
     if isinstance(obj, uuid.UUID):

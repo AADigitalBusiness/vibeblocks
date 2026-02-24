@@ -14,6 +14,11 @@ TaskChain Core
    :undoc-members:
    :show-inheritance:
 
+.. automodule:: taskchain.core.errors
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 .. automodule:: taskchain.core.executable
    :members:
    :undoc-members:
@@ -59,6 +64,19 @@ TaskChain Runtime
 -----------------
 
 .. automodule:: taskchain.runtime.runner
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+TaskChain Utils
+---------------
+
+.. automodule:: taskchain.utils.inspection
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: taskchain.utils.serialization
    :members:
    :undoc-members:
    :show-inheritance:
