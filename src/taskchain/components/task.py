@@ -53,6 +53,8 @@ class Task(Executable[T]):
 
                 # Runtime check for false-negative async detection (e.g. lambdas returning coroutines)
                 if inspect.isawaitable(res):
+                    if inspect.iscoroutine(res):
+                        res.close()
                     # We cannot await it here because we are in sync mode.
                     # We must warn the user that their task logic probably didn't run.
                     # Or raise an error? Raising error is safer.

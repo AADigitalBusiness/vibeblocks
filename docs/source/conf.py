@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.abspath('../../src'))
 
 # -- Project information -----------------------------------------------------
 project = 'TaskChain'
-copyright = '2024, TaskChain Team'
+copyright = '2026, TaskChain Team'
 author = 'TaskChain Team'
 release = '0.1.0'
 

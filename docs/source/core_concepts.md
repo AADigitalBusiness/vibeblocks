@@ -24,6 +24,11 @@ TaskChain uses a composite pattern where everything is an `Executable`:
 The smallest unit of work. It wraps a Python function (sync or async) and adds:
 
 - **Retry Policy**: Configurable retries with backoff and jitter.
+    - `max_attempts` (int): Total attempts before failure (default: 1).
+    - `delay` (float): Base wait time in seconds (default: 1.0).
+    - `backoff` (BackoffStrategy): Wait strategy (FIXED, LINEAR, EXPONENTIAL).
+    - `retry_on` (List[Exception]): Exceptions that trigger a retry.
+    - `give_up_on` (List[Exception]): Exceptions that immediately fail.
 - **Compensation**: Logic to undo changes if the workflow fails later.
 
 ### Process (Composite)

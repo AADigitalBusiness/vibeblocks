@@ -3,6 +3,7 @@ Process component handling linear execution of multiple tasks.
 """
 
 import inspect
+import time
 from typing import List, Union, Awaitable, TypeVar
 
 from taskchain.core.context import ExecutionContext
@@ -33,47 +34,66 @@ class Process(Executable[T]):
         return self._execute_sync(ctx)
 
     def _execute_sync(self, ctx: ExecutionContext[T]) -> Outcome[T]:
+        start_time = time.perf_counter_ns()
         ctx.log_event("INFO", self.name, "Process Started")
-        for step in self.steps:
-            try:
-                result = step.execute(ctx)
 
-                # Safety check for unexpected async returns in sync mode
-                if inspect.isawaitable(result):
-                    raise ProcessExecutionError(f"Step '{getattr(step, 'name', 'Unknown')}' returned a coroutine in a sync process execution. Use AsyncRunner.")
+        try:
+            for step in self.steps:
+                try:
+                    result = step.execute(ctx)
 
-                # Check outcome
-                if isinstance(result, Outcome):
-                    if result.status != "SUCCESS":
-                         # Stop execution and bubble up failure
-                         return result
-            except Exception as e:
-                ctx.log_event("ERROR", self.name, f"Process Error: {str(e)}")
-                # Wrap unknown errors in ProcessExecutionError
-                raise ProcessExecutionError(f"Process '{self.name}' failed") from e
+                    # Safety check for unexpected async returns in sync mode
+                    if inspect.isawaitable(result):
+                        if inspect.iscoroutine(result):
+                            result.close()
+                        raise ProcessExecutionError(f"Step '{getattr(step, 'name', 'Unknown')}' returned a coroutine in a sync process execution. Use AsyncRunner.")
 
+                    # Check outcome
+                    if isinstance(result, Outcome):
+                        if result.status != "SUCCESS":
+                             # Stop execution and bubble up failure
+                             return result
+                except Exception as e:
+                    duration = (time.perf_counter_ns() - start_time) // 1_000_000
+                    ctx.log_event("ERROR", self.name, f"Process Error: {str(e)}")
+                    return Outcome(status="FAILED", context=ctx, errors=[e], duration_ms=duration)
+        except Exception as e:
+            duration = (time.perf_counter_ns() - start_time) // 1_000_000
+            ctx.log_event("ERROR", self.name, f"Process Unexpected Error: {str(e)}")
+            return Outcome(status="FAILED", context=ctx, errors=[e], duration_ms=duration)
+
+        duration = (time.perf_counter_ns() - start_time) // 1_000_000
         ctx.log_event("INFO", self.name, "Process Completed")
         ctx.completed_steps.add(self.name)
-        return Outcome(status="SUCCESS", context=ctx, errors=[], duration_ms=0)
+        return Outcome(status="SUCCESS", context=ctx, errors=[], duration_ms=duration)
 
     async def _execute_async(self, ctx: ExecutionContext[T]) -> Outcome[T]:
+        start_time = time.perf_counter_ns()
         ctx.log_event("INFO", self.name, "Process Started (Async)")
-        for step in self.steps:
-            try:
-                result = step.execute(ctx)
-                if inspect.isawaitable(result):
-                    result = await result
 
-                if isinstance(result, Outcome):
-                     if result.status != "SUCCESS":
-                         return result
-            except Exception as e:
-                ctx.log_event("ERROR", self.name, f"Process Error: {str(e)}")
-                raise ProcessExecutionError(f"Process '{self.name}' failed") from e
+        try:
+            for step in self.steps:
+                try:
+                    result = step.execute(ctx)
+                    if inspect.isawaitable(result):
+                        result = await result
 
+                    if isinstance(result, Outcome):
+                         if result.status != "SUCCESS":
+                             return result
+                except Exception as e:
+                    duration = (time.perf_counter_ns() - start_time) // 1_000_000
+                    ctx.log_event("ERROR", self.name, f"Process Error: {str(e)}")
+                    return Outcome(status="FAILED", context=ctx, errors=[e], duration_ms=duration)
+        except Exception as e:
+            duration = (time.perf_counter_ns() - start_time) // 1_000_000
+            ctx.log_event("ERROR", self.name, f"Process Unexpected Error: {str(e)}")
+            return Outcome(status="FAILED", context=ctx, errors=[e], duration_ms=duration)
+
+        duration = (time.perf_counter_ns() - start_time) // 1_000_000
         ctx.log_event("INFO", self.name, "Process Completed")
         ctx.completed_steps.add(self.name)
-        return Outcome(status="SUCCESS", context=ctx, errors=[], duration_ms=0)
+        return Outcome(status="SUCCESS", context=ctx, errors=[], duration_ms=duration)
 
     def compensate(self, ctx: ExecutionContext[T]) -> Union[None, Awaitable[None]]:
         if self.is_async:
@@ -84,6 +104,8 @@ class Process(Executable[T]):
             if self._did_step_succeed(ctx, step):
                 res = step.compensate(ctx)
                 if inspect.isawaitable(res):
+                    if inspect.iscoroutine(res):
+                        res.close()
                     raise RuntimeError(f"Step '{getattr(step, 'name', 'Unknown')}' returned an async compensation in a sync process. Use AsyncRunner.")
         return None
 

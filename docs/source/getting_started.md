@@ -101,6 +101,30 @@ else:
     print(f"Final status after compensation: {ctx.data.status}")
 ```
 
+### 4. Grouping Tasks with Process
+
+You can group related tasks into a `Process` to ensure they execute sequentially as a single unit. If any task in the process fails, the entire process fails.
+
+```python
+from taskchain.components.process import Process
+
+# Create a process for account setup
+account_setup_process = Process(
+    name="AccountSetup",
+    steps=[validate_email, create_account]
+)
+
+# Use the process in the workflow
+workflow = Workflow(
+    name="UserOnboarding",
+    steps=[
+        account_setup_process,
+        send_welcome_email
+    ],
+    strategy=FailureStrategy.COMPENSATE
+)
+```
+
 ## Async Support
 
 TaskChain supports async/await natively.

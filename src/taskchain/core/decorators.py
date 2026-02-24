@@ -2,6 +2,7 @@
 Decorators for wrapping user functions into library components.
 """
 
+from functools import update_wrapper
 from typing import Callable, Optional, List, Type, Any, TypeVar, Union
 from taskchain.components.task import Task
 from taskchain.policies.retry import RetryPolicy, BackoffStrategy
@@ -49,10 +50,14 @@ def task(
                 give_up_on=give_up_on or []
             )
 
-        return Task(
+        t = Task(
             name=task_name,
             func=func,
             retry_policy=policy,
             undo=undo
         )
+        # Update wrapper to preserve metadata (docstrings, name, etc.)
+        # We avoid updating __dict__ to prevent overwriting Task internal attributes
+        update_wrapper(t, func, updated=())
+        return t
     return decorator
