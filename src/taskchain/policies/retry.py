@@ -3,34 +3,44 @@ Retry logic and backoff strategies.
 Provides classes to handle transient errors in tasks and workflows.
 """
 
-from dataclasses import dataclass, field
-from enum import Enum, auto
-from typing import Type, List
 import random
+from dataclasses import dataclass
+from enum import Enum, auto
+from typing import Sequence, Type
+
 
 class BackoffStrategy(Enum):
     """
     Defines how the delay between retry intervals grows.
     """
+
     FIXED = auto()
     """Fixed delay across all attempts (delay = base_delay)."""
-    
+
     LINEAR = auto()
-    """Delays multiply linearly with the attempt's loop iteration (delay = base_delay * attempt_num)."""
-    
+    """
+    Delays multiply linearly with the attempt's loop iteration.
+    (delay = base_delay * attempt_num)
+    """
+
     EXPONENTIAL = auto()
-    """Delays multiply using base 2 to the power of the attempt num (delay = base_delay * (2^(attempt_num-1)))."""
+    """
+    Delays multiply using base 2 to the power of the attempt num.
+    (delay = base_delay * (2^(attempt_num-1)))
+    """
+
 
 @dataclass
 class RetryPolicy:
     """Configuration for retry logic."""
+
     max_attempts: int = 3
     delay: float = 1.0  # Base delay in seconds
     backoff: BackoffStrategy = BackoffStrategy.FIXED
     max_delay: float = 60.0
     jitter: bool = False
-    retry_on: List[Type[Exception]] = field(default_factory=lambda: [Exception])
-    give_up_on: List[Type[Exception]] = field(default_factory=list)
+    retry_on: Sequence[Type[Exception]] = (Exception,)
+    give_up_on: Sequence[Type[Exception]] = ()
 
     def should_retry(self, attempt: int, exception: Exception) -> bool:
         """Determines if a retry should occur based on attempts and exception type."""
@@ -38,14 +48,12 @@ class RetryPolicy:
             return False
 
         # Check give_up_on first
-        for exc_type in self.give_up_on:
-            if isinstance(exception, exc_type):
-                return False
+        if isinstance(exception, tuple(self.give_up_on)):
+            return False
 
         # Check retry_on
-        for exc_type in self.retry_on:
-            if isinstance(exception, exc_type):
-                return True
+        if isinstance(exception, tuple(self.retry_on)):
+            return True
 
         return False
 
