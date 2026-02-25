@@ -1,18 +1,16 @@
 # TaskChain
 
-**TaskChain** is a lightweight, framework-agnostic Python library for organizing business logic using structured workflows. It focuses on Developer Experience (DX), type safety, and zero-gravity dependencies.
+**A lightweight, framework-agnostic Python task orchestration library.**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+TaskChain is designed for developers who need modular, simple, and maintainable pipelines without the overhead of heavy tools like Airflow or Luigi. It focuses on Developer Experience (DX), type safety, and "Zero-gravity" (no external dependencies).
 
-## Features
+## Why TaskChain?
 
-- **Zero-Gravity Core**: No mandatory external dependencies.
-- **Type Safety**: Built with generics for full IDE support and static analysis (`mypy --strict`).
-- **Composite Pattern**: Organize logic into `Task` -> `Process` -> `Workflow`.
-- **Resilience**: Configurable retry policies with backoff and jitter.
-- **Compensation**: Built-in support for undo/rollback logic (Saga pattern).
-- **Traceability**: Complete execution history in a serializable `ExecutionContext`.
-- **Hybrid Execution**: Supports both synchronous and asynchronous (`async`/`await`) execution.
+*   **Simplicity First:** Define pipelines in pure Python. No DSLs, no complex configuration files.
+*   **Lightweight:** Zero external dependencies. Just pure Python standard library.
+*   **Modular:** Compose `Tasks` into `Processes` and `Workflows` (or `Chains`).
+*   **Type Safe:** Built with modern Python typing in mind.
+*   **Resilient:** Built-in retry policies and compensation logic (undo steps).
 
 ## Installation
 
@@ -22,53 +20,54 @@ pip install taskchain
 
 ## Quick Start
 
+Create a simple pipeline to process data.
+
 ```python
-from dataclasses import dataclass
-from taskchain import task, Workflow, ExecutionContext, FailureStrategy, SyncRunner
+from taskchain import Chain, Task, ExecutionContext
 
-@dataclass
-class UserData:
-    email: str
-    status: str = "pending"
+# 1. Define your tasks
+def extract(ctx: ExecutionContext):
+    print("Extracting data...")
+    ctx.data["raw"] = [1, 2, 3, 4, 5]
+    return ctx.data["raw"]
 
-@task
-def validate_email(ctx: ExecutionContext[UserData]):
-    if "@" not in ctx.data.email:
-        raise ValueError("Invalid email")
+def transform(ctx: ExecutionContext):
+    print("Transforming data...")
+    data = ctx.data["raw"]
+    ctx.data['processed'] = [x * 2 for x in data]
+    return ctx.data['processed']
 
-@task(undo=lambda ctx: print("Rolling back user creation..."))
-def create_user(ctx: ExecutionContext[UserData]):
-    ctx.data.status = "created"
-    print(f"User {ctx.data.email} created.")
+def load(ctx: ExecutionContext):
+    print(f"Loading data: {ctx.data['processed']}")
+    return True
 
-# Organize tasks into a workflow
-workflow = Workflow(
-    name="Onboarding",
-    steps=[validate_email, create_user],
-    strategy=FailureStrategy.COMPENSATE
-)
+# 2. Create the Chain (Workflow)
+pipeline = Chain("ETL_Pipeline", [
+    Task("Extract", extract),
+    Task("Transform", transform),
+    Task("Load", load)
+])
 
-# Initialize context and run
-ctx = ExecutionContext(UserData(email="test@example.com"))
-outcome = SyncRunner().run(workflow, ctx)
+# 3. Execute
+initial_context = ExecutionContext(data={})
+result = pipeline.execute(initial_context)
 
-print(f"Status: {outcome.status}")
+if result.status == "SUCCESS":
+    print("Pipeline completed successfully!")
+else:
+    print(f"Pipeline failed: {result.errors}")
 ```
 
-## Documentation
+## TaskChain vs. Airflow/Luigi
 
-Full documentation is available in the `docs/` directory. To build it locally:
-
-```bash
-pip install sphinx sphinx-rtd-theme myst-parser
-cd docs
-make html
-```
-
-## Contributing
-
-Contributions are welcome! Please read the contributing guidelines before submitting a pull request.
+| Feature | TaskChain | Airflow / Luigi |
+| :--- | :--- | :--- |
+| **Philosophy** | Library (embedded) | Platform (standalone service) |
+| **Complexity** | Low (Pure Python) | High (Database, Scheduler, Web Server) |
+| **Setup Time** | Seconds (`pip install`) | Hours (Docker, Config, DB init) |
+| **Use Case** | Application logic, Data Scripts, ETL within apps | Enterprise Data Engineering, Cross-team dependencies |
+| **Dependencies** | None (Standard Lib only) | Many (Databases, Providers, etc.) |
 
 ## License
 
-MIT License
+MIT License. See [LICENSE](LICENSE) for details.
