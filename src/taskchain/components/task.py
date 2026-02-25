@@ -35,6 +35,7 @@ class Task(Executable[T]):
     @property
     def is_async(self) -> bool:
         """Determines if the task function is asynchronous."""
+        # Optimized: Return pre-calculated value to avoid repeated inspection overhead
         return self._is_async
 
     def execute(self, ctx: ExecutionContext[T]) -> Union[Outcome[T], Awaitable[Outcome[T]]]:
