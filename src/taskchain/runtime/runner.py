@@ -1,8 +1,9 @@
 import inspect
-from typing import TypeVar, Union, Awaitable
+from typing import TypeVar
+
 from taskchain.core.context import ExecutionContext
-from taskchain.core.outcome import Outcome
 from taskchain.core.executable import Executable
+from taskchain.core.outcome import Outcome
 
 T = TypeVar("T")
 
