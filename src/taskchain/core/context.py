@@ -9,8 +9,7 @@ import dataclasses
 import warnings
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Dict, Generic, List, Literal, Optional, Set, Type, TypeVar
-
+from typing import Generic, TypeVar, Literal, List, Dict, Any, Type, Optional, Set, Callable
 from taskchain.utils import serialization
 
 T = TypeVar("T")
@@ -28,6 +27,7 @@ class ExecutionContext(Generic[T]):
     trace: List[Event] = field(default_factory=list)
     metadata: Dict[str, Any] = field(default_factory=dict)
     completed_steps: Set[str] = field(default_factory=set)
+    exception_sanitizer: Callable[[Exception], str] = field(default=str, repr=False, compare=False)
 
     def log_event(self, level: Literal["INFO", "ERROR", "DEBUG"], source: str, message: str) -> None:
         """Logs an event to the trace."""
@@ -37,6 +37,10 @@ class ExecutionContext(Generic[T]):
             source=source,
             message=message
         ))
+
+    def format_exception(self, e: Exception) -> str:
+        """Formats an exception for logging using the configured sanitizer."""
+        return self.exception_sanitizer(e)
 
     def to_json(self) -> str:
         """Serializes the context to a JSON string."""

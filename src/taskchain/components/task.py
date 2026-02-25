@@ -89,7 +89,7 @@ class Task(Executable[T]):
 
             except Exception as e:
                 duration = int((time.time() - start_time) * 1000)
-                ctx.log_event("ERROR", self.name, f"Task Failed: {str(e)}")
+                ctx.log_event("ERROR", self.name, f"Task Failed: {ctx.format_exception(e)}")
 
                 if self.retry_policy.should_retry(attempt, e):
                     delay = self.retry_policy.calculate_delay(attempt)
@@ -135,7 +135,7 @@ class Task(Executable[T]):
 
             except Exception as e:
                 duration = int((time.time() - start_time) * 1000)
-                ctx.log_event("ERROR", self.name, f"Task Failed: {str(e)}")
+                ctx.log_event("ERROR", self.name, f"Task Failed: {ctx.format_exception(e)}")
 
                 if self.retry_policy.should_retry(attempt, e):
                     delay = self.retry_policy.calculate_delay(attempt)
@@ -167,7 +167,7 @@ class Task(Executable[T]):
             try:
                 self.undo(ctx)
             except Exception as e:
-                ctx.log_event("ERROR", self.name, f"Compensation Failed: {str(e)}")
+                ctx.log_event("ERROR", self.name, f"Compensation Failed: {ctx.format_exception(e)}")
                 raise
             return None
 
@@ -180,5 +180,5 @@ class Task(Executable[T]):
             if inspect.isawaitable(res):
                 await res
         except Exception as e:
-            ctx.log_event("ERROR", self.name, f"Compensation Failed: {str(e)}")
+            ctx.log_event("ERROR", self.name, f"Compensation Failed: {ctx.format_exception(e)}")
             raise

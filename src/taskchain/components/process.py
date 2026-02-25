@@ -37,6 +37,23 @@ class Process(Executable[T]):
     def _execute_sync(self, ctx: ExecutionContext[T]) -> Outcome[T]:
         start_time = time.perf_counter_ns()
         ctx.log_event("INFO", self.name, "Process Started")
+        for step in self.steps:
+            try:
+                result = step.execute(ctx)
+
+                # Safety check for unexpected async returns in sync mode
+                if inspect.isawaitable(result):
+                    raise ProcessExecutionError(f"Step '{getattr(step, 'name', 'Unknown')}' returned a coroutine in a sync process execution. Use AsyncRunner.")
+
+                # Check outcome
+                if isinstance(result, Outcome):
+                    if result.status != "SUCCESS":
+                         # Stop execution and bubble up failure
+                         return result
+            except Exception as e:
+                ctx.log_event("ERROR", self.name, f"Process Error: {ctx.format_exception(e)}")
+                # Wrap unknown errors in ProcessExecutionError
+                raise ProcessExecutionError(f"Process '{self.name}' failed") from e
 
         try:
             for step in self.steps:
@@ -71,6 +88,18 @@ class Process(Executable[T]):
     async def _execute_async(self, ctx: ExecutionContext[T]) -> Outcome[T]:
         start_time = time.perf_counter_ns()
         ctx.log_event("INFO", self.name, "Process Started (Async)")
+        for step in self.steps:
+            try:
+                result = step.execute(ctx)
+                if inspect.isawaitable(result):
+                    result = await result
+
+                if isinstance(result, Outcome):
+                     if result.status != "SUCCESS":
+                         return result
+            except Exception as e:
+                ctx.log_event("ERROR", self.name, f"Process Error: {ctx.format_exception(e)}")
+                raise ProcessExecutionError(f"Process '{self.name}' failed") from e
 
         try:
             for step in self.steps:

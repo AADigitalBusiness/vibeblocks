@@ -77,8 +77,8 @@ class Workflow(Executable[T]):
                         return outcome
 
             except Exception as e:
-                ctx.log_event("ERROR", self.name, f"Workflow Error: {str(e)}")
-                step_errors = [e]
+                ctx.log_event("ERROR", self.name, f"Workflow Error: {ctx.format_exception(e)}")
+                collected_errors.append(e)
 
             if step_errors:
                 outcome = self._handle_sync_step_failure(ctx, step, step_errors, start_time)
@@ -175,7 +175,7 @@ class Workflow(Executable[T]):
                         return outcome
 
             except Exception as e:
-                ctx.log_event("ERROR", self.name, f"Workflow Error: {str(e)}")
+                ctx.log_event("ERROR", self.name, f"Workflow Error: {ctx.format_exception(e)}")
                 collected_errors.append(e)
 
                 action, outcome = self._handle_failure_strategy(
