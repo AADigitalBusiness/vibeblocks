@@ -6,6 +6,7 @@ class TaskExecutionError(TaskChainError):
     """Raised when a Task fails to execute."""
     pass
 
+
 class TaskTimeoutError(TaskExecutionError):
     """Raised when a Task exceeds its allocated execution time."""
     pass

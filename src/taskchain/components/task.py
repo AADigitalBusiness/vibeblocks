@@ -2,12 +2,13 @@ import asyncio
 import concurrent.futures
 import inspect
 import time
-from typing import Any, Awaitable, Callable, Optional, TypeVar, Union
+from typing import Any, Awaitable, Callable, Generic, Optional, TypeVar, Union, cast
+import warnings
 
 from taskchain.core.context import ExecutionContext
-from taskchain.core.errors import TaskExecutionError, TaskTimeoutError
-from taskchain.core.executable import Executable
 from taskchain.core.outcome import Outcome
+from taskchain.core.executable import Executable
+from taskchain.core.errors import TaskExecutionError, TaskTimeoutError
 from taskchain.policies.retry import RetryPolicy
 from taskchain.utils.inspection import is_async_callable
 
@@ -16,6 +17,7 @@ T = TypeVar("T")
 # Shared executor for synchronous task timeouts to avoid overhead and thread leakage.
 # Using a large enough number of workers to handle concurrent tasks.
 _TASK_TIMEOUT_EXECUTOR = concurrent.futures.ThreadPoolExecutor(thread_name_prefix="TaskTimeout")
+
 
 class Task(Executable[T]):
     """

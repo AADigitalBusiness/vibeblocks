@@ -2,11 +2,10 @@
 Decorators for wrapping user functions into library components.
 """
 
-from typing import Any, Callable, List, Optional, Type, TypeVar
-
+from typing import Callable, Optional, List, Type, Any, TypeVar, Union
 from taskchain.components.task import Task
+from taskchain.policies.retry import RetryPolicy, BackoffStrategy
 from taskchain.core.context import ExecutionContext
-from taskchain.policies.retry import BackoffStrategy, RetryPolicy
 
 T = TypeVar("T")
 
