@@ -1,17 +1,21 @@
+import asyncio
+import concurrent.futures
 import inspect
 import time
-import asyncio
-from typing import Callable, Optional, Awaitable, Union, Any, TypeVar, Generic, cast
-import warnings
+from typing import Any, Awaitable, Callable, Optional, TypeVar, Union
 
 from taskchain.core.context import ExecutionContext
-from taskchain.core.outcome import Outcome
+from taskchain.core.errors import TaskExecutionError, TaskTimeoutError
 from taskchain.core.executable import Executable
-from taskchain.core.errors import TaskExecutionError
+from taskchain.core.outcome import Outcome
 from taskchain.policies.retry import RetryPolicy
 from taskchain.utils.inspection import is_async_callable
 
 T = TypeVar("T")
+
+# Shared executor for synchronous task timeouts to avoid overhead and thread leakage.
+# Using a large enough number of workers to handle concurrent tasks.
+_TASK_TIMEOUT_EXECUTOR = concurrent.futures.ThreadPoolExecutor(thread_name_prefix="TaskTimeout")
 
 class Task(Executable[T]):
     """
@@ -25,11 +29,13 @@ class Task(Executable[T]):
         func: Callable[[ExecutionContext[T]], Any],
         retry_policy: Optional[RetryPolicy] = None,
         undo: Optional[Callable[[ExecutionContext[T]], Any]] = None,
+        timeout: Optional[float] = None,
     ):
         self.name = name
         self.func = func
         self.retry_policy = retry_policy or RetryPolicy(max_attempts=1)
         self.undo = undo
+        self.timeout = timeout
 
     @property
     def is_async(self) -> bool:
@@ -49,7 +55,16 @@ class Task(Executable[T]):
 
         while True:
             try:
-                res = self.func(ctx)
+                if self.timeout:
+                    try:
+                        future = _TASK_TIMEOUT_EXECUTOR.submit(self.func, ctx)
+                        res = future.result(timeout=self.timeout)
+                    except concurrent.futures.TimeoutError:
+                        raise TaskTimeoutError(
+                            f"Task '{self.name}' timed out after {self.timeout}s"
+                        ) from None
+                else:
+                    res = self.func(ctx)
 
                 # Runtime check for false-negative async detection (e.g. lambdas returning coroutines)
                 if inspect.isawaitable(res):
@@ -87,7 +102,15 @@ class Task(Executable[T]):
             try:
                 res = self.func(ctx)
                 if inspect.isawaitable(res):
-                    await res
+                    if self.timeout:
+                        try:
+                            res = await asyncio.wait_for(res, timeout=self.timeout)
+                        except asyncio.TimeoutError:
+                            raise TaskTimeoutError(
+                                f"Task '{self.name}' timed out after {self.timeout}s"
+                            ) from None
+                    else:
+                        res = await res
 
                 duration = int((time.time() - start_time) * 1000)
                 ctx.log_event("INFO", self.name, "Task Completed")
