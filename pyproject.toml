@@ -4,38 +4,33 @@ build-backend = "hatchling.build"
 
 [project]
 name = "taskchain"
-version = "0.1.0"
-description = "A lightweight, framework-agnostic Python task orchestration library focused on Developer Experience."
+dynamic = ["version"]
+description = "A lightweight task orchestration module for modular and simple pipelines."
 readme = "README.md"
-requires-python = ">=3.10"
-license = { text = "MIT" }
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
 authors = [
-    { name = "TaskChain Team", email = "maintainers@taskchain.dev" }
+  { name = "Alejandro Avendaño" },
 ]
 classifiers = [
-    "Development Status :: 4 - Beta",
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Typing :: Typed",
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: System :: Distributed Computing",
 ]
-dependencies = []
 
-[project.optional-dependencies]
-dev = [
-    "pytest>=7.0",
-    "pytest-asyncio>=0.21",
-    "mypy>=1.0",
-    "ruff>=0.1.0",
-]
-docs = [
-    "sphinx>=7.0",
-    "sphinx-rtd-theme",
-    "myst-parser",
-]
+[project.urls]
+Homepage = "https://github.com/alejandro-avendano/taskchain"
+Documentation = "https://github.com/alejandro-avendano/taskchain#readme"
+Issues = "https://github.com/alejandro-avendano/taskchain/issues"
+Source = "https://github.com/alejandro-avendano/taskchain"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/taskchain"]
@@ -43,23 +38,7 @@ packages = ["src/taskchain"]
 [tool.hatch.version]
 path = "src/taskchain/__init__.py"
 
-[tool.mypy]
-python_version = "3.10"
-strict = true
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
-
-[tool.ruff]
-line-length = 100
-target-version = "py310"
-
-[tool.ruff.lint]
-select = ["E", "F", "I", "N", "W", "B"]
-ignore = []
-
 [tool.pytest.ini_options]
 addopts = "--strict-markers"
 testpaths = ["tests"]
 pythonpath = ["src"]
-# asyncio_mode = "auto"

@@ -34,6 +34,10 @@ class BackoffStrategy(Enum):
 class RetryPolicy:
     """Configuration for retry logic."""
 
+    # Safety limits to prevent resource exhaustion
+    MAX_ATTEMPTS_LIMIT = 100
+    MAX_DELAY_LIMIT = 3600.0  # 1 hour
+
     max_attempts: int = 3
     delay: float = 1.0  # Base delay in seconds
     backoff: BackoffStrategy = BackoffStrategy.FIXED
@@ -41,6 +45,23 @@ class RetryPolicy:
     jitter: bool = False
     retry_on: Sequence[Type[Exception]] = (Exception,)
     give_up_on: Sequence[Type[Exception]] = ()
+
+    def __post_init__(self) -> None:
+        """Validate and cap configuration values for safety."""
+        # Ensure non-negative values
+        if self.max_attempts < 0:
+            self.max_attempts = 0
+        if self.delay < 0:
+            self.delay = 0.0
+        if self.max_delay < 0:
+            self.max_delay = 0.0
+
+        # Cap at safety limits
+        if self.max_attempts > self.MAX_ATTEMPTS_LIMIT:
+            self.max_attempts = self.MAX_ATTEMPTS_LIMIT
+
+        if self.max_delay > self.MAX_DELAY_LIMIT:
+            self.max_delay = self.MAX_DELAY_LIMIT
 
     def should_retry(self, attempt: int, exception: Exception) -> bool:
         """Determines if a retry should occur based on attempts and exception type."""

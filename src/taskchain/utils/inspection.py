@@ -27,7 +27,7 @@ def is_async_callable(obj: Any) -> bool:
 
     # Check if the object is a callable instance with an async __call__
     # Note: inspect.iscoroutinefunction(obj.__call__) works for methods too.
-    if hasattr(obj, "__call__") and inspect.iscoroutinefunction(obj.__call__):
+    if callable(obj) and inspect.iscoroutinefunction(obj.__call__):
         return True
 
     return False

@@ -1,4 +1,5 @@
 import asyncio
+import concurrent.futures
 import inspect
 import time
 from typing import Any, Awaitable, Callable, Optional, TypeVar, Union
@@ -12,6 +13,11 @@ from taskchain.utils.inspection import is_async_callable
 
 T = TypeVar("T")
 
+# Shared executor for synchronous task timeouts to avoid overhead and thread leakage.
+# Using a large enough number of workers to handle concurrent tasks.
+_TASK_TIMEOUT_EXECUTOR = concurrent.futures.ThreadPoolExecutor(thread_name_prefix="TaskTimeout")
+
+
 class Task(Executable[T]):
     """
     Represents an atomic unit of work in a workflow.
@@ -24,13 +30,13 @@ class Task(Executable[T]):
         func: Callable[[ExecutionContext[T]], Any],
         retry_policy: Optional[RetryPolicy] = None,
         undo: Optional[Callable[[ExecutionContext[T]], Any]] = None,
+        timeout: Optional[float] = None,
     ):
         self.name = name
         self.func = func
         self.retry_policy = retry_policy or RetryPolicy(max_attempts=1)
         self.undo = undo
-        self._is_async = is_async_callable(func)
-        self._is_undo_async = is_async_callable(undo) if undo else False
+        self.timeout = timeout
 
     @property
     def is_async(self) -> bool:
@@ -51,16 +57,30 @@ class Task(Executable[T]):
 
         while True:
             try:
-                res = self.func(ctx)
+                if self.timeout:
+                    try:
+                        future = _TASK_TIMEOUT_EXECUTOR.submit(self.func, ctx)
+                        res = future.result(timeout=self.timeout)
+                    except concurrent.futures.TimeoutError:
+                        raise TaskTimeoutError(
+                            f"Task '{self.name}' timed out after {self.timeout}s"
+                        ) from None
+                else:
+                    res = self.func(ctx)
 
-                # Runtime check for false-negative async detection (e.g. lambdas returning coroutines)
+                # Runtime check for false-negative async detection (e.g. lambdas)
                 if inspect.isawaitable(res):
                     if inspect.iscoroutine(res):
                         res.close()
                     # We cannot await it here because we are in sync mode.
                     # We must warn the user that their task logic probably didn't run.
                     # Or raise an error? Raising error is safer.
-                    raise RuntimeError(f"Task '{self.name}' returned an awaitable (coroutine) but was executed synchronously. Check if the function is defined correctly or if AsyncRunner should be used.")
+                    msg = (
+                        f"Task '{self.name}' returned an awaitable (coroutine) but "
+                        "was executed synchronously. Check if the function is "
+                        "defined correctly or if AsyncRunner should be used."
+                    )
+                    raise RuntimeError(msg)
 
                 duration = int((time.time() - start_time) * 1000)
                 ctx.log_event("INFO", self.name, "Task Completed")
@@ -73,14 +93,21 @@ class Task(Executable[T]):
 
                 if self.retry_policy.should_retry(attempt, e):
                     delay = self.retry_policy.calculate_delay(attempt)
-                    ctx.log_event("INFO", self.name, f"Retrying in {delay}s (Attempt {attempt}/{self.retry_policy.max_attempts})")
+                    msg = (
+                        f"Retrying in {delay}s (Attempt {attempt}/"
+                        f"{self.retry_policy.max_attempts})"
+                    )
+                    ctx.log_event("INFO", self.name, msg)
                     time.sleep(delay)
                     attempt += 1
                     continue
                 else:
-                    error = TaskExecutionError(f"Task '{self.name}' failed after {attempt} attempts")
+                    msg = f"Task '{self.name}' failed after {attempt} attempts"
+                    error = TaskExecutionError(msg)
                     error.__cause__ = e
-                    return Outcome(status="FAILED", context=ctx, errors=[error], duration_ms=duration)
+                    return Outcome(
+                        status="FAILED", context=ctx, errors=[error], duration_ms=duration
+                    )
 
     async def _execute_async(self, ctx: ExecutionContext[T]) -> Outcome[T]:
         ctx.log_event("INFO", self.name, "Task Started (Async)")
@@ -91,7 +118,15 @@ class Task(Executable[T]):
             try:
                 res = self.func(ctx)
                 if inspect.isawaitable(res):
-                    await res
+                    if self.timeout:
+                        try:
+                            res = await asyncio.wait_for(res, timeout=self.timeout)
+                        except asyncio.TimeoutError:
+                            raise TaskTimeoutError(
+                                f"Task '{self.name}' timed out after {self.timeout}s"
+                            ) from None
+                    else:
+                        res = await res
 
                 duration = int((time.time() - start_time) * 1000)
                 ctx.log_event("INFO", self.name, "Task Completed")
@@ -104,14 +139,21 @@ class Task(Executable[T]):
 
                 if self.retry_policy.should_retry(attempt, e):
                     delay = self.retry_policy.calculate_delay(attempt)
-                    ctx.log_event("INFO", self.name, f"Retrying in {delay}s (Attempt {attempt}/{self.retry_policy.max_attempts})")
+                    msg = (
+                        f"Retrying in {delay}s (Attempt {attempt}/"
+                        f"{self.retry_policy.max_attempts})"
+                    )
+                    ctx.log_event("INFO", self.name, msg)
                     await asyncio.sleep(delay)
                     attempt += 1
                     continue
                 else:
-                    error = TaskExecutionError(f"Task '{self.name}' failed after {attempt} attempts")
+                    msg = f"Task '{self.name}' failed after {attempt} attempts"
+                    error = TaskExecutionError(msg)
                     error.__cause__ = e
-                    return Outcome(status="FAILED", context=ctx, errors=[error], duration_ms=duration)
+                    return Outcome(
+                        status="FAILED", context=ctx, errors=[error], duration_ms=duration
+                    )
 
     def compensate(self, ctx: ExecutionContext[T]) -> Union[None, Awaitable[None]]:
         if self.undo is None:

@@ -6,10 +6,11 @@ all tasks and processes, accumulating data and tracking trace history.
 """
 
 import dataclasses
+import warnings
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Generic, TypeVar, Literal, List, Dict, Any, Type, Optional, Set
-import warnings
+from typing import Any, Dict, Generic, List, Literal, Optional, Set, Type, TypeVar
+
 from taskchain.utils import serialization
 
 T = TypeVar("T")
@@ -40,7 +41,7 @@ class ExecutionContext(Generic[T]):
     def to_json(self) -> str:
         """Serializes the context to a JSON string."""
         # Convert completed_steps (set) to list for JSON serialization before calling custom util
-        # Since to_json uses a default encoder, we can also add set handling there, 
+        # Since to_json uses a default encoder, we can also add set handling there,
         # but the safest local way is:
         serializable_self = {
             "data": self.data,
@@ -50,20 +51,8 @@ class ExecutionContext(Generic[T]):
         }
         return serialization.to_json(serializable_self)
 
-    @classmethod
-    def from_json(cls, raw: str, data_cls: Optional[Type[T]] = None) -> "ExecutionContext[T]":
-        """
-        Deserializes a JSON string back to an ExecutionContext.
-
-        Args:
-            raw: The JSON string.
-            data_cls: Optional class to cast the 'data' field into (e.g. a dataclass or Pydantic model).
-                      If not provided, 'data' remains a dictionary.
-        """
-        parsed = serialization.from_json(raw)
-
-        # Reconstruct Trace
-        trace_data = parsed.get("trace", [])
+    @staticmethod
+    def _parse_trace(trace_data: List[Dict[str, Any]]) -> List[Event]:
         trace_objs = []
         for e in trace_data:
             ts_str = e["timestamp"]
@@ -78,37 +67,62 @@ class ExecutionContext(Generic[T]):
                 source=e["source"],
                 message=e["message"]
             ))
+        return trace_objs
 
-        # Reconstruct Data
-        raw_data = parsed.get("data")
-        data_obj: Any = raw_data
+    @staticmethod
+    def _parse_data(raw_data: Any, data_cls: Optional[Type[T]] = None) -> T:
+        if not data_cls or raw_data is None:
+            return raw_data
 
-        if data_cls and raw_data is not None:
-            # 1. Try Pydantic v2 support
-            if hasattr(data_cls, "model_validate"):
-                try:
-                    data_obj = data_cls.model_validate(raw_data)
-                except Exception as e:
-                    warnings.warn(f"Failed to deserialize using Pydantic v2 model_validate: {e}", RuntimeWarning)
-            # 2. Try Pydantic v1 support
-            elif hasattr(data_cls, "parse_obj"):
-                try:
-                    data_obj = data_cls.parse_obj(raw_data) # type: ignore
-                except Exception as e:
-                    warnings.warn(f"Failed to deserialize using Pydantic v1 parse_obj: {e}", RuntimeWarning)
-            # 3. Try standard Dataclass dictionary unpacking
-            elif dataclasses.is_dataclass(data_cls) and isinstance(raw_data, dict):
-                try:
-                    data_obj = data_cls(**raw_data)
-                except TypeError as e:
-                    warnings.warn(f"Failed to deserialize dataclass: {e}", RuntimeWarning)
-            # 4. Fallback: Standard instantiation if signature matches dict keys
-            elif isinstance(raw_data, dict):
-                 try:
-                     # Risky, but better than silent fail when someone uses typed dicts.
-                     data_obj = data_cls(**raw_data)
-                 except TypeError as e:
-                     warnings.warn(f"Failed to deserialize using standard instantiation: {e}", RuntimeWarning)
+        # 1. Try Pydantic v2 support
+        if hasattr(data_cls, "model_validate"):
+            try:
+                return data_cls.model_validate(raw_data)
+            except Exception as e:
+                warnings.warn(f"Failed to deserialize using Pydantic v2 model_validate: {e}", RuntimeWarning)
+                return raw_data
+
+        # 2. Try Pydantic v1 support
+        if hasattr(data_cls, "parse_obj"):
+            try:
+                return data_cls.parse_obj(raw_data)  # type: ignore
+            except Exception as e:
+                warnings.warn(f"Failed to deserialize using Pydantic v1 parse_obj: {e}", RuntimeWarning)
+                return raw_data
+
+        # 3. Try standard Dataclass dictionary unpacking
+        if dataclasses.is_dataclass(data_cls) and isinstance(raw_data, dict):
+            try:
+                return data_cls(**raw_data)
+            except TypeError as e:
+                warnings.warn(f"Failed to deserialize dataclass: {e}", RuntimeWarning)
+                return raw_data
+
+        # 4. Fallback: Standard instantiation if signature matches dict keys
+        if isinstance(raw_data, dict):
+            try:
+                # Risky, but better than silent fail when someone uses typed dicts.
+                return data_cls(**raw_data)
+            except TypeError as e:
+                warnings.warn(f"Failed to deserialize using standard instantiation: {e}", RuntimeWarning)
+                return raw_data
+
+        return raw_data
+
+    @classmethod
+    def from_json(cls, raw: str, data_cls: Optional[Type[T]] = None) -> "ExecutionContext[T]":
+        """
+        Deserializes a JSON string back to an ExecutionContext.
+
+        Args:
+            raw: The JSON string.
+            data_cls: Optional class to cast the 'data' field into (e.g. a dataclass or Pydantic model).
+                      If not provided, 'data' remains a dictionary.
+        """
+        parsed = serialization.from_json(raw)
+
+        trace_objs = cls._parse_trace(parsed.get("trace", []))
+        data_obj = cls._parse_data(parsed.get("data"), data_cls)
 
         return cls(
             data=data_obj,

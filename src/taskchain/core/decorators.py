@@ -15,6 +15,7 @@ def task(
     name: Optional[str] = None,
     retry_policy: Optional[RetryPolicy] = None,
     undo: Optional[Callable[[ExecutionContext[Any]], Any]] = None,
+    timeout: Optional[float] = None,
     # Quick configuration arguments
     max_attempts: int = 1,
     delay: float = 1.0,
@@ -55,7 +56,8 @@ def task(
             name=task_name,
             func=func,
             retry_policy=policy,
-            undo=undo
+            undo=undo,
+            timeout=timeout
         )
         # Update wrapper to preserve metadata (docstrings, name, etc.)
         # We avoid updating __dict__ to prevent overwriting Task internal attributes
