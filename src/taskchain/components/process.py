@@ -21,11 +21,12 @@ class Process(Executable[T]):
     def __init__(self, name: str, steps: List[Executable[T]]):
         self.name = name
         self.steps = steps
+        self._is_async = any(step.is_async for step in self.steps)
 
     @property
     def is_async(self) -> bool:
-        """Recursively checks if any step requires async execution."""
-        return any(step.is_async for step in self.steps)
+        """Determines if the process requires asynchronous execution."""
+        return self._is_async
 
     def execute(self, ctx: ExecutionContext[T]) -> Union[Outcome[T], Awaitable[Outcome[T]]]:
         if self.is_async:
