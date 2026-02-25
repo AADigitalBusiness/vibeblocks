@@ -3,7 +3,7 @@ import json
 import uuid
 from datetime import date, datetime
 from enum import Enum
-from typing import Any, Type, TypeVar, Union
+from typing import Any, TypeVar, Union
 
 T = TypeVar("T")
 
