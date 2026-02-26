@@ -1,5 +1,5 @@
 """
-TaskChain Cookbook: 3 canonical examples that cover common use cases.
+TaskChain Cookbook: 4 canonical examples that cover common use cases.
 
 Run:
     PYTHONPATH=src ./venv/bin/python examples/cookbook.py
@@ -10,22 +10,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from taskchain import ExecutionContext, FailureStrategy, SyncRunner, Workflow, task
+from taskchain import ExecutionContext, FailureStrategy, SyncRunner, Workflow, task, execute_workflow
 from taskchain.policies.retry import BackoffStrategy, RetryPolicy
-from taskchain.utils.inspection import is_async_callable
-
-
-def _prepare_task(task_obj: Any) -> Any:
-    """
-    Compatibility shim for local source checkouts where Task runtime flags
-    may not be initialized yet.
-    """
-
-    if not hasattr(task_obj, "_is_async"):
-        task_obj._is_async = is_async_callable(task_obj.func)
-    if not hasattr(task_obj, "_is_undo_async"):
-        task_obj._is_undo_async = bool(task_obj.undo and is_async_callable(task_obj.undo))
-    return task_obj
 
 
 @dataclass
@@ -64,7 +50,7 @@ def run_continue_strategy_example() -> None:
 
             context.data.imported_ids.append(row_id)
 
-        steps.append(_prepare_task(import_record))
+        steps.append(import_record)
 
     workflow = Workflow(
         name="ImportUsersContinueOnError",
@@ -112,7 +98,7 @@ def run_retry_policy_example() -> None:
 
         context.data.payload = {"id": "u-200", "status": "ok"}
 
-    workflow = Workflow(name="UnstableHttpWorkflow", steps=[_prepare_task(fetch_remote_profile)])
+    workflow = Workflow(name="UnstableHttpWorkflow", steps=[fetch_remote_profile])
     outcome = SyncRunner().run(workflow, ctx)
 
     print("\n[Example 2] RetryPolicy")
@@ -149,7 +135,7 @@ def run_shared_context_example() -> None:
 
     workflow = Workflow(
         name="SharedContextWorkflow",
-        steps=[_prepare_task(capture_email), _prepare_task(normalize_email)],
+        steps=[capture_email, normalize_email],
     )
     outcome = SyncRunner().run(workflow, ctx)
 
@@ -160,10 +146,36 @@ def run_shared_context_example() -> None:
     print(f"Domain: {ctx.data.domain!r}")
 
 
+@dataclass
+class SimpleData:
+    count: int
+
+def run_convenience_example() -> None:
+    """
+    Example 4:
+    Use execute_workflow to simplify execution.
+    """
+
+    @task()
+    def increment(ctx: ExecutionContext[SimpleData]):
+        ctx.data.count += 1
+
+    workflow = Workflow("ConvenienceFlow", [increment])
+    data = SimpleData(count=10)
+
+    # execute_workflow handles context and runner creation for you
+    outcome = execute_workflow(workflow, data)
+
+    print("\n[Example 4] Convenience Utility")
+    print(f"Outcome status: {outcome.status}")
+    print(f"Result count: {outcome.context.data.count}")
+
+
 def main() -> None:
     run_continue_strategy_example()
     run_retry_policy_example()
     run_shared_context_example()
+    run_convenience_example()
 
 
 if __name__ == "__main__":

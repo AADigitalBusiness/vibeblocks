@@ -142,3 +142,34 @@ async def main():
 
 # asyncio.run(main())
 ```
+
+## Simplified Execution
+
+For simple use cases, you can use the `execute_workflow` utility to run workflows without manually creating the context and runner.
+
+```python
+from taskchain import execute_workflow, Workflow, task
+from dataclasses import dataclass
+
+@dataclass
+class MyData:
+    count: int
+
+@task()
+def increment(ctx):
+    ctx.data.count += 1
+
+# Define your workflow
+workflow = Workflow("SimpleFlow", [increment])
+
+# Execute synchronously
+# Automatically creates ExecutionContext(data=MyData(count=1)) and SyncRunner()
+data = MyData(count=1)
+outcome = execute_workflow(workflow, data)
+
+print(f"Result: {outcome.context.data.count}") # Result: 2
+
+# Execute asynchronously
+# Automatically creates AsyncRunner()
+# await execute_workflow(workflow, data, async_mode=True)
+```
