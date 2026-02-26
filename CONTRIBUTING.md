@@ -29,3 +29,5 @@ Thank you for your interest in contributing to TaskChain!
 ## Reporting Issues
 
 Please use the issue tracker to report bugs or request features.
+
+
