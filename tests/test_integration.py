@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from taskchain.components.task import Task
-from taskchain.components.workflow import Workflow
+from taskchain.components.beat import Beat
+from taskchain.components.flow import Flow
 from taskchain.core.context import ExecutionContext
 from taskchain.policies.failure import FailureStrategy
 from taskchain.policies.retry import RetryPolicy
@@ -32,14 +32,14 @@ def test_onboarding_success():
         # Simulate success
         pass
 
-    tasks = [
-        Task("ValidateEmail", validate_email),
-        Task("CreateAccount", create_account, undo=undo_create_account),
-        Task("SendWelcomeEmail", send_welcome_email, retry_policy=RetryPolicy(max_attempts=3))
+    beats = [
+        Beat("ValidateEmail", validate_email),
+        Beat("CreateAccount", create_account, undo=undo_create_account),
+        Beat("SendWelcomeEmail", send_welcome_email, retry_policy=RetryPolicy(max_attempts=3))
     ]
 
-    workflow = Workflow("UserOnboarding", tasks, strategy=FailureStrategy.COMPENSATE)
-    outcome = SyncRunner().run(workflow, ctx)
+    flow = Flow("UserOnboarding", beats, strategy=FailureStrategy.COMPENSATE)
+    outcome = SyncRunner().run(flow, ctx)
 
     assert outcome.status == "SUCCESS"
     assert ctx.data.user_id == "user_123"
@@ -62,14 +62,14 @@ def test_onboarding_failure_compensation():
     def send_welcome_email(ctx):
         raise ConnectionError("Email service down")
 
-    tasks = [
-        Task("ValidateEmail", validate_email),
-        Task("CreateAccount", create_account, undo=undo_create_account),
-        Task("SendWelcomeEmail", send_welcome_email, retry_policy=RetryPolicy(max_attempts=2, delay=0.001))
+    beats = [
+        Beat("ValidateEmail", validate_email),
+        Beat("CreateAccount", create_account, undo=undo_create_account),
+        Beat("SendWelcomeEmail", send_welcome_email, retry_policy=RetryPolicy(max_attempts=2, delay=0.001))
     ]
 
-    workflow = Workflow("UserOnboarding", tasks, strategy=FailureStrategy.COMPENSATE)
-    outcome = SyncRunner().run(workflow, ctx)
+    flow = Flow("UserOnboarding", beats, strategy=FailureStrategy.COMPENSATE)
+    outcome = SyncRunner().run(flow, ctx)
 
     assert outcome.status == "FAILED"
     # Account created then deleted
