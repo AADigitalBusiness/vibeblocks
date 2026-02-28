@@ -8,6 +8,7 @@ dynamic = ["version"]
 description = "Lightweight Python workflow orchestration library for AI agents, async task execution, retries, and failure-safe automation."
 readme = "README.md"
 requires-python = ">=3.8"
+dependencies = []
 license = { file = "LICENSE" }
 license-files = ["LICENSE"]
 keywords = [
@@ -59,6 +60,15 @@ Changelog = "https://github.com/AADigitalBusiness/vibeblocks/blob/main/CHANGELOG
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/vibeblocks"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src",
+  "/README.md",
+  "/LICENSE",
+  "/CHANGELOG.md",
+  "/pyproject.toml",
+]
 
 [tool.hatch.version]
 path = "src/vibeblocks/__init__.py"

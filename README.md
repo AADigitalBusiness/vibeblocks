@@ -16,6 +16,7 @@ VibeBlocks evolves the concept of task orchestration into an AI-ready framework.
 pip install vibeblocks
 ```
 
+
 ## Quick Start
 
 ### 1. Classic Usage
