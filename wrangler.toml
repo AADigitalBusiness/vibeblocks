@@ -5,3 +5,7 @@ preview_urls = true
 
 [assets]
 directory = "./docs/_build/html"
+
+[[routes]]
+pattern = "vibeblocks.aadigitalbusiness.com"
+custom_domain = true
