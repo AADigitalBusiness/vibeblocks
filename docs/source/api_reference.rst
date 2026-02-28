@@ -2,7 +2,7 @@ API Reference
 =============
 
 VibeBlocks Core
--------------
+===============
 
 .. automodule:: vibeblocks.core.context
    :members:
@@ -30,7 +30,7 @@ VibeBlocks Core
    :show-inheritance:
 
 VibeBlocks Components
--------------------
+=====================
 
 .. automodule:: vibeblocks.components.block
    :members:
@@ -53,7 +53,7 @@ VibeBlocks Components
    :show-inheritance:
 
 VibeBlocks Policies
------------------
+===================
 
 .. automodule:: vibeblocks.policies.retry
    :members:
@@ -66,7 +66,7 @@ VibeBlocks Policies
    :show-inheritance:
 
 VibeBlocks Runtime
-----------------
+==================
 
 .. automodule:: vibeblocks.runtime.runner
    :members:
@@ -74,7 +74,7 @@ VibeBlocks Runtime
    :show-inheritance:
 
 VibeBlocks Utils
---------------
+================
 
 .. automodule:: vibeblocks.utils.execution
    :members:

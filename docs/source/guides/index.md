@@ -8,5 +8,6 @@ Task-oriented guides for common implementation needs.
 tasks-processes-workflows
 sync-vs-async-runner
 context-serialization
+ai-orchestration
 recipes
 ```

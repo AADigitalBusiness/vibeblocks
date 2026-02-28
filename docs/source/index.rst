@@ -1,5 +1,5 @@
 VibeBlocks Documentation
-======================
+========================
 
 VibeBlocks is a reusable, framework-agnostic Python library designed to organize business logic using structured flows.
 

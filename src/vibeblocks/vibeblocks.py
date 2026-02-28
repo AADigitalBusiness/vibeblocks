@@ -26,13 +26,8 @@ class VibeBlocks:
         Parses a JSON request, constructs a Flow, and executes it.
 
         Args:
-            json_request: A dictionary defining the flow.
-                          Expected format:
-                          {
-                              "name": "MyDynamicFlow",
-                              "steps": ["block_1", "block_2"],
-                              "strategy": "ABORT" | "CONTINUE" | "COMPENSATE"
-                          }
+            json_request: A dictionary defining the flow with keys like
+                ``name``, ``steps``, and ``strategy``.
             initial_data: The data object to initialize ExecutionContext with.
             available_blocks: A dictionary mapping step names (strings) to Block instances.
 
