@@ -1,2 +1,2 @@
-# vibeflow.utils
+# vibeblocks.utils
 # Low-level utilities

@@ -1,22 +1,22 @@
 """
-Chain component handling linear execution of multiple beats.
+Chain component handling linear execution of multiple blocks.
 """
 
 import inspect
 import time
 from typing import List, Union, Awaitable, TypeVar
 
-from vibeflow.core.context import ExecutionContext
-from vibeflow.core.outcome import Outcome
-from vibeflow.core.executable import Executable
-from vibeflow.core.errors import ChainExecutionError
+from vibeblocks.core.context import ExecutionContext
+from vibeblocks.core.outcome import Outcome
+from vibeblocks.core.executable import Executable
+from vibeblocks.core.errors import ChainExecutionError
 
 T = TypeVar("T")
 
 
 class Chain(Executable[T]):
     """
-    A linear collection of executables (beats or sub-chains).
+    A linear collection of executables (blocks or sub-chains).
     Executes steps sequentially.
     """
 

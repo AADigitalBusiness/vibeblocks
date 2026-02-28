@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 import pytest
-from vibeflow.core.context import ExecutionContext, Event
+from vibeblocks.core.context import ExecutionContext, Event
 
 # Mock classes for Pydantic v1 and v2
 

@@ -1,9 +1,9 @@
 import inspect
 from typing import TypeVar
 
-from vibeflow.core.context import ExecutionContext
-from vibeflow.core.executable import Executable
-from vibeflow.core.outcome import Outcome
+from vibeblocks.core.context import ExecutionContext
+from vibeblocks.core.executable import Executable
+from vibeblocks.core.outcome import Outcome
 
 T = TypeVar("T")
 
@@ -13,7 +13,7 @@ class SyncRunner:
 
     def run(self, executable: Executable[T], ctx: ExecutionContext[T]) -> Outcome[T]:
         """
-        Runs the executable (Flow, Chain, or Beat) synchronously.
+        Runs the executable (Flow, Chain, or Block) synchronously.
         Raises RuntimeError if the executable returns an Awaitable (requires async execution).
         """
         result = executable.execute(ctx)

@@ -1,7 +1,7 @@
-VibeFlow Documentation
+VibeBlocks Documentation
 ======================
 
-VibeFlow is a reusable, framework-agnostic Python library designed to organize business logic using structured flows.
+VibeBlocks is a reusable, framework-agnostic Python library designed to organize business logic using structured flows.
 
 .. toctree::
    :maxdepth: 2

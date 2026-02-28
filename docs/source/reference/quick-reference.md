@@ -3,7 +3,7 @@
 ## Core Building Blocks
 
 - `ExecutionContext[T]`: shared flow state and trace
-- `Beat`: atomic executable step
+- `Block`: atomic executable step
 - `Chain`: ordered group of steps
 - `Flow`: orchestration boundary and failure strategy
 - `SyncRunner` / `AsyncRunner`: execution engines

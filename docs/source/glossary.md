@@ -1,7 +1,7 @@
 # Glossary
 
 - `ExecutionContext`: Mutable state container passed across steps.
-- `Beat`: Smallest executable unit; wraps a function.
+- `Block`: Smallest executable unit; wraps a function.
 - `Chain`: Ordered sequence of executable steps.
 - `Flow`: Top-level executable that defines failure behavior.
 - `RetryPolicy`: Rule set controlling retries on failure.

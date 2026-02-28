@@ -1,4 +1,4 @@
-# VibeFlow Documentation Structure Proposal
+# VibeBlocks Documentation Structure Proposal
 
 ## Purpose
 
@@ -71,7 +71,7 @@ docs/
 ## Navigation Diagram
 
 ```text
-VibeFlow Documentation
+VibeBlocks Documentation
 |- Home
 |- Start Here
 |- Onboarding

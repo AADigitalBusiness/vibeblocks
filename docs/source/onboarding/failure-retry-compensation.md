@@ -2,7 +2,7 @@
 
 ## Goal
 
-Understand resilient execution behavior in VibeFlow.
+Understand resilient execution behavior in VibeBlocks.
 
 ## What You Learn
 

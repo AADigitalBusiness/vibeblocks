@@ -1,4 +1,4 @@
-from vibeflow.policies.retry import BackoffStrategy, RetryPolicy
+from vibeblocks.policies.retry import BackoffStrategy, RetryPolicy
 
 
 def test_retry_policy_limits_defaults():

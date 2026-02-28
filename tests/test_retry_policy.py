@@ -1,4 +1,4 @@
-from vibeflow.policies.retry import RetryPolicy, BackoffStrategy
+from vibeblocks.policies.retry import RetryPolicy, BackoffStrategy
 
 
 def test_should_retry_max_attempts():

@@ -1,6 +1,6 @@
-# Contributing to VibeFlow
+# Contributing to VibeBlocks
 
-Thank you for your interest in contributing to VibeFlow.
+Thank you for your interest in contributing to VibeBlocks.
 
 ## Getting Started
 
@@ -16,13 +16,13 @@ Thank you for your interest in contributing to VibeFlow.
 
 ## Project Layout
 
-- Runtime code lives under `src/vibeflow`.
+- Runtime code lives under `src/vibeblocks`.
 - Tests live under `tests/`.
 - Documentation sources live under `docs/source/`.
 
 ## Code Style
 
-- Keep imports and examples aligned with the current package name: `vibeflow`.
+- Keep imports and examples aligned with the current package name: `vibeblocks`.
 - Prefer small, focused changes with matching test coverage.
 - Use type hints for public APIs and behavior-facing code.
 - Run `ruff check .` and `ruff format .` when touching Python files.

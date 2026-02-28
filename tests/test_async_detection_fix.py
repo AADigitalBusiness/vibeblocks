@@ -2,10 +2,10 @@ import pytest
 import asyncio
 from functools import partial
 from typing import Any
-from vibeflow.components.beat import Beat
-from vibeflow.core.context import ExecutionContext
-from vibeflow.runtime.runner import SyncRunner, AsyncRunner
-from vibeflow.utils.inspection import is_async_callable
+from vibeblocks.components.block import Block
+from vibeblocks.core.context import ExecutionContext
+from vibeblocks.runtime.runner import SyncRunner, AsyncRunner
+from vibeblocks.utils.inspection import is_async_callable
 
 
 async def async_fn(ctx):
@@ -38,25 +38,25 @@ def test_inspection_util():
     assert not is_async_callable(partial(sync_fn))
 
 
-def test_beat_async_detection():
+def test_block_async_detection():
     # No need for async context, just checking property
 
-    t1 = Beat("t1", async_fn)
+    t1 = Block("t1", async_fn)
     assert t1.is_async, "Direct async function should be detected"
 
-    t2 = Beat("t2", AsyncCallable())
+    t2 = Block("t2", AsyncCallable())
     assert t2.is_async, "Async callable object should be detected"
 
-    t3 = Beat("t3", partial(async_fn))
+    t3 = Block("t3", partial(async_fn))
     assert t3.is_async, "Partial async function should be detected"
 
-    t4 = Beat("t4", sync_fn)
+    t4 = Block("t4", sync_fn)
     assert not t4.is_async, "Sync function should be detected as sync"
 
 
-def test_beat_runtime_safety_sync():
+def test_block_runtime_safety_sync():
     # If a function is sync but returns a coroutine (undetected async)
-    # The beat should fail loudly.
+    # The block should fail loudly.
 
     async def hidden_coro():
         pass
@@ -64,18 +64,18 @@ def test_beat_runtime_safety_sync():
     def sneaky_fn(ctx):
         return hidden_coro()
 
-    t = Beat("sneaky", sneaky_fn)
+    t = Block("sneaky", sneaky_fn)
     # Correctly identified as sync function because 'sneaky_fn' is sync def
     assert not t.is_async
 
     ctx = ExecutionContext[dict](data={})
     runner = SyncRunner()
 
-    # Running this sync should raise RuntimeError inside Beat because it returns awaitable
-    # The Beat catches it and returns FAILED Outcome with BeatExecutionError wrapping RuntimeError
+    # Running this sync should raise RuntimeError inside Block because it returns awaitable
+    # The Block catches it and returns FAILED Outcome with BlockExecutionError wrapping RuntimeError
     outcome = runner.run(t, ctx)
 
-    # outcome.errors[0] is BeatExecutionError wrapping RuntimeError
+    # outcome.errors[0] is BlockExecutionError wrapping RuntimeError
     assert outcome.status == "FAILED"
     assert len(outcome.errors) > 0
     # Search error message deep in cause or message

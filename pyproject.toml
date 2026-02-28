@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "vibeflow"
+name = "vibeblocks"
 dynamic = ["version"]
 description = "Lightweight Python workflow orchestration library for AI agents, async task execution, retries, and failure-safe automation."
 readme = "README.md"
@@ -50,18 +50,18 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/AADigitalBusiness/vibeflow"
-Documentation = "https://github.com/AADigitalBusiness/vibeflow#readme"
-Issues = "https://github.com/AADigitalBusiness/vibeflow/issues"
-Repository = "https://github.com/AADigitalBusiness/vibeflow"
-Source = "https://github.com/AADigitalBusiness/vibeflow"
-Changelog = "https://github.com/AADigitalBusiness/vibeflow/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/AADigitalBusiness/vibeblocks"
+Documentation = "https://github.com/AADigitalBusiness/vibeblocks#readme"
+Issues = "https://github.com/AADigitalBusiness/vibeblocks/issues"
+Repository = "https://github.com/AADigitalBusiness/vibeblocks"
+Source = "https://github.com/AADigitalBusiness/vibeblocks"
+Changelog = "https://github.com/AADigitalBusiness/vibeblocks/blob/main/CHANGELOG.md"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/vibeflow"]
+packages = ["src/vibeblocks"]
 
 [tool.hatch.version]
-path = "src/vibeflow/__init__.py"
+path = "src/vibeblocks/__init__.py"
 
 [tool.pytest.ini_options]
 addopts = "--strict-markers"

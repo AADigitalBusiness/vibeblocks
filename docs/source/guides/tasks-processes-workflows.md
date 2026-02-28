@@ -1,12 +1,12 @@
-# How to Use Beat, Chain, and Flow
+# How to Use Block, Chain, and Flow
 
 ## Intent
 
-Use `Beat` for atomic units, `Chain` for ordered groups, and `Flow` for orchestration strategy.
+Use `Block` for atomic units, `Chain` for ordered groups, and `Flow` for orchestration strategy.
 
 ## Quick Mapping
 
-- `Beat`: one function with optional retry/undo
+- `Block`: one function with optional retry/undo
 - `Chain`: ordered composition of executable steps
 - `Flow`: top-level execution plan and failure strategy
 

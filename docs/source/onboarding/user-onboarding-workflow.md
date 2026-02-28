@@ -7,7 +7,7 @@ Build a realistic onboarding flow with step composition and shared state.
 ## What You Learn
 
 - How to model business state in `ExecutionContext`
-- How to compose steps with `Beat`, `Chain`, and `Flow`
+- How to compose steps with `Block`, `Chain`, and `Flow`
 - How to inspect outcomes
 
 ## Reference

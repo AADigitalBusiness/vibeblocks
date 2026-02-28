@@ -1,11 +1,11 @@
 <!-- @format -->
 
-# Getting Started with VibeFlow
+# Getting Started with VibeBlocks
 
 ## Installation
 
 ```bash
-pip install vibeflow
+pip install vibeblocks
 ```
 
 ## Basic Usage: User Onboarding Example
@@ -18,7 +18,7 @@ First, define the data structure that will hold your workflow's state.
 
 ```python
 from dataclasses import dataclass
-from vibeflow import ExecutionContext
+from vibeblocks import ExecutionContext
 
 @dataclass
 class UserData:
@@ -37,15 +37,15 @@ json_state = ctx.to_json()
 restored_ctx = ExecutionContext.from_json(json_state, data_cls=UserData)
 ```
 
-### 2. Define Beats
+### 2. Define Blocks
 
-Create beats using the `@beat` decorator. Beats can modify the context and define undo logic.
+Create blocks using the `@block` decorator. Blocks can modify the context and define undo logic.
 
 ```python
-from vibeflow import beat
-from vibeflow.policies.retry import RetryPolicy
+from vibeblocks import block
+from vibeblocks.policies.retry import RetryPolicy
 
-@beat()
+@block()
 def validate_email(ctx: ExecutionContext[UserData]):
     if "@" not in ctx.data.email:
         raise ValueError("Invalid email format")
@@ -55,14 +55,14 @@ def undo_create_account(ctx: ExecutionContext[UserData]):
     ctx.data.user_id = None
     ctx.data.status = "deleted"
 
-@beat(undo=undo_create_account)
+@block(undo=undo_create_account)
 def create_account(ctx: ExecutionContext[UserData]):
     # Simulate DB call
     ctx.data.user_id = "user_123"
     ctx.data.status = "created"
     print("Account created")
 
-@beat(retry_policy=RetryPolicy(max_attempts=3))
+@block(retry_policy=RetryPolicy(max_attempts=3))
 def send_welcome_email(ctx: ExecutionContext[UserData]):
     print(f"Sending email to {ctx.data.email}")
     # Simulate potential failure
@@ -71,11 +71,11 @@ def send_welcome_email(ctx: ExecutionContext[UserData]):
 
 ### 3. Orchestrate a Flow
 
-Group beats into a `Flow` and execute it using a runner.
+Group blocks into a `Flow` and execute it using a runner.
 
 ```python
-from vibeflow import Flow, SyncRunner
-from vibeflow.policies.failure import FailureStrategy
+from vibeblocks import Flow, SyncRunner
+from vibeblocks.policies.failure import FailureStrategy
 
 # Define Flow
 # FailureStrategy.COMPENSATE will trigger undo logic if a step fails
@@ -100,12 +100,12 @@ else:
     print(f"Final status after compensation: {ctx.data.status}")
 ```
 
-### 4. Grouping Beats with Chain
+### 4. Grouping Blocks with Chain
 
-You can group related beats into a `Chain` to ensure they execute sequentially as a single unit. If any beat in the chain fails, the entire chain fails.
+You can group related blocks into a `Chain` to ensure they execute sequentially as a single unit. If any block in the chain fails, the entire chain fails.
 
 ```python
-from vibeflow import Chain
+from vibeblocks import Chain
 
 # Create a chain for account setup
 account_setup_chain = Chain(
@@ -126,18 +126,18 @@ flow = Flow(
 
 ## Async Support
 
-VibeFlow supports async/await natively.
+VibeBlocks supports async/await natively.
 
 ```python
 import asyncio
-from vibeflow import AsyncRunner
+from vibeblocks import AsyncRunner
 
-@beat()
-async def async_beat(ctx):
+@block()
+async def async_block(ctx):
     await asyncio.sleep(1)
 
 async def main():
-    outcome = await AsyncRunner().run(async_beat, ctx)
+    outcome = await AsyncRunner().run(async_block, ctx)
 
 # asyncio.run(main())
 ```
@@ -147,14 +147,14 @@ async def main():
 For simple use cases, you can use `execute_flow` to run a flow without manually creating the context and runner.
 
 ```python
-from vibeflow import execute_flow, Flow, beat
+from vibeblocks import execute_flow, Flow, block
 from dataclasses import dataclass
 
 @dataclass
 class MyData:
     count: int
 
-@beat()
+@block()
 def increment(ctx):
     ctx.data.count += 1
 

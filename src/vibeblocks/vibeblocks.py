@@ -1,17 +1,17 @@
 """
-VibeFlow dynamic orchestration layer.
+VibeBlocks dynamic orchestration layer.
 Allows creating and executing flows from JSON descriptions on the fly.
 """
 
 from typing import Any, Dict, List, Type, Optional, Union, Awaitable
-from vibeflow.components.flow import Flow
-from vibeflow.components.beat import Beat
-from vibeflow.policies.failure import FailureStrategy
-from vibeflow.utils.execution import execute_flow
-from vibeflow.core.outcome import Outcome
+from vibeblocks.components.flow import Flow
+from vibeblocks.components.block import Block
+from vibeblocks.policies.failure import FailureStrategy
+from vibeblocks.utils.execution import execute_flow
+from vibeblocks.core.outcome import Outcome
 
 
-class VibeFlow:
+class VibeBlocks:
     """
     Dynamic Orchestrator that builds and runs Flows from JSON definitions.
     """
@@ -20,7 +20,7 @@ class VibeFlow:
     def run_from_json(
         json_request: Dict[str, Any],
         initial_data: Any,
-        available_beats: Dict[str, Beat]
+        available_blocks: Dict[str, Block]
     ) -> Union[Outcome[Any], Awaitable[Outcome[Any]]]:
         """
         Parses a JSON request, constructs a Flow, and executes it.
@@ -30,11 +30,11 @@ class VibeFlow:
                           Expected format:
                           {
                               "name": "MyDynamicFlow",
-                              "steps": ["beat_1", "beat_2"],
+                              "steps": ["block_1", "block_2"],
                               "strategy": "ABORT" | "CONTINUE" | "COMPENSATE"
                           }
             initial_data: The data object to initialize ExecutionContext with.
-            available_beats: A dictionary mapping step names (strings) to Beat instances.
+            available_blocks: A dictionary mapping step names (strings) to Block instances.
 
         Returns:
             The outcome of the execution.
@@ -50,13 +50,13 @@ class VibeFlow:
         except KeyError:
             strategy = FailureStrategy.ABORT
 
-        # Resolve Beats
+        # Resolve Blocks
         flow_steps = []
         for name in step_names:
-            if name not in available_beats:
+            if name not in available_blocks:
                 raise ValueError(
-                    f"Beat '{name}' not found in available_beats.")
-            flow_steps.append(available_beats[name])
+                    f"Block '{name}' not found in available_blocks.")
+            flow_steps.append(available_blocks[name])
 
         # Construct Flow
         flow = Flow(name=flow_name, steps=flow_steps, strategy=strategy)

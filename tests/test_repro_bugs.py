@@ -1,11 +1,11 @@
-from vibeflow.core.decorators import beat
+from vibeblocks.core.decorators import block
 import pytest
 import time
-from vibeflow.utils import serialization
-from vibeflow.components.chain import Chain
-from vibeflow.core.executable import Executable
-from vibeflow.core.context import ExecutionContext
-from vibeflow.core.outcome import Outcome
+from vibeblocks.utils import serialization
+from vibeblocks.components.chain import Chain
+from vibeblocks.core.executable import Executable
+from vibeblocks.core.context import ExecutionContext
+from vibeblocks.core.outcome import Outcome
 
 
 class FailingStep(Executable):
@@ -34,7 +34,7 @@ def test_serialization_set_and_exception():
 
 
 def test_chain_exception_handling():
-    # Use a raw executable that raises, not a Beat
+    # Use a raw executable that raises, not a Block
     step = FailingStep("failing_step")
     p = Chain("failing_chain", [step])
     ctx = ExecutionContext({})
@@ -77,11 +77,11 @@ def test_chain_duration():
 
 
 def test_metadata_preservation():
-    @beat(name="my_beat")
+    @block(name="my_block")
     def my_func(ctx: ExecutionContext):
         """My docstring."""
         pass
 
     assert my_func.__name__ == "my_func"
     assert my_func.__doc__ == "My docstring."
-    assert my_func.name == "my_beat"
+    assert my_func.name == "my_block"

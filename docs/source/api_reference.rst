@@ -1,97 +1,97 @@
 API Reference
 =============
 
-VibeFlow Core
+VibeBlocks Core
 -------------
 
-.. automodule:: vibeflow.core.context
+.. automodule:: vibeblocks.core.context
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: vibeflow.core.outcome
+.. automodule:: vibeblocks.core.outcome
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: vibeflow.core.errors
+.. automodule:: vibeblocks.core.errors
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: vibeflow.core.executable
+.. automodule:: vibeblocks.core.executable
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: vibeflow.core.decorators
+.. automodule:: vibeblocks.core.decorators
    :members:
    :undoc-members:
    :show-inheritance:
 
-VibeFlow Components
+VibeBlocks Components
 -------------------
 
-.. automodule:: vibeflow.components.beat
+.. automodule:: vibeblocks.components.block
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: vibeflow.components.chain
+.. automodule:: vibeblocks.components.chain
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: vibeflow.components.flow
+.. automodule:: vibeblocks.components.flow
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: vibeflow.vibeflow
+.. automodule:: vibeblocks.vibeblocks
    :members:
    :undoc-members:
    :show-inheritance:
 
-VibeFlow Policies
+VibeBlocks Policies
 -----------------
 
-.. automodule:: vibeflow.policies.retry
+.. automodule:: vibeblocks.policies.retry
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: vibeflow.policies.failure
+.. automodule:: vibeblocks.policies.failure
    :members:
    :undoc-members:
    :show-inheritance:
 
-VibeFlow Runtime
+VibeBlocks Runtime
 ----------------
 
-.. automodule:: vibeflow.runtime.runner
+.. automodule:: vibeblocks.runtime.runner
    :members:
    :undoc-members:
    :show-inheritance:
 
-VibeFlow Utils
+VibeBlocks Utils
 --------------
 
-.. automodule:: vibeflow.utils.execution
+.. automodule:: vibeblocks.utils.execution
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: vibeflow.utils.inspection
+.. automodule:: vibeblocks.utils.inspection
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: vibeflow.utils.schema
+.. automodule:: vibeblocks.utils.schema
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: vibeflow.utils.serialization
+.. automodule:: vibeblocks.utils.serialization
    :members:
    :undoc-members:
    :show-inheritance:

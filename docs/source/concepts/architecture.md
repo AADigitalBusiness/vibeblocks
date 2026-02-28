@@ -1,8 +1,8 @@
 # Architecture
 
-VibeFlow uses a composite executable model:
+VibeBlocks uses a composite executable model:
 
-- `Beat` (leaf)
+- `Block` (leaf)
 - `Chain` (composite)
 - `Flow` (orchestrator)
 

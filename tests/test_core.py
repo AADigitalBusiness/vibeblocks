@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from vibeflow.core.context import ExecutionContext, Event
+from vibeblocks.core.context import ExecutionContext, Event
 
 
 @dataclass

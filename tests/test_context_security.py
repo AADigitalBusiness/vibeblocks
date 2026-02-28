@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from vibeflow.core.context import ExecutionContext
+from vibeblocks.core.context import ExecutionContext
 
 
 def test_from_json_invalid_structure():

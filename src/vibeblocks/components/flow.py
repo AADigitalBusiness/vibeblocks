@@ -1,5 +1,5 @@
 """
-Flow orchestrator for executing trees of Beats and Chaines.
+Flow orchestrator for executing trees of Blocks and Chaines.
 Handles high-level failure policies.
 """
 
@@ -7,17 +7,17 @@ import inspect
 import time
 from typing import Any, Awaitable, Dict, List, Literal, Optional, Tuple, TypeVar, Union
 
-from vibeflow.core.context import ExecutionContext
-from vibeflow.core.executable import Executable
-from vibeflow.core.outcome import Outcome
-from vibeflow.policies.failure import FailureStrategy
+from vibeblocks.core.context import ExecutionContext
+from vibeblocks.core.executable import Executable
+from vibeblocks.core.outcome import Outcome
+from vibeblocks.policies.failure import FailureStrategy
 
 T = TypeVar("T")
 
 
 class Flow(Executable[T]):
     """
-    The top-level orchestrator that manages a sequence of steps (Beats or Chaines)
+    The top-level orchestrator that manages a sequence of steps (Blocks or Chaines)
     and handles failures according to a strategy.
     """
 
@@ -113,10 +113,12 @@ class Flow(Executable[T]):
                 elif action == "COMPENSATE":
                     res = step.compensate(ctx)
                     self._ensure_not_awaitable(
-                        res, getattr(step, "name", "Unknown"), "step compensation"
+                        res, getattr(
+                            step, "name", "Unknown"), "step compensation"
                     )
                     res = self.compensate(ctx)
-                    self._ensure_not_awaitable(res, self.name, "flow compensation")
+                    self._ensure_not_awaitable(
+                        res, self.name, "flow compensation")
                     if outcome:
                         outcome.duration_ms = (
                             time.perf_counter_ns() - start_time

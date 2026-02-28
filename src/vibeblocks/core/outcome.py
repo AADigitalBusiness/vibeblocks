@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Generic, TypeVar, Literal, List
-from vibeflow.core.context import ExecutionContext
+from vibeblocks.core.context import ExecutionContext
 
 T = TypeVar("T")
 

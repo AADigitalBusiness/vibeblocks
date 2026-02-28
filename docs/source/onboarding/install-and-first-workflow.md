@@ -2,13 +2,13 @@
 
 ## Goal
 
-Set up VibeFlow and run a first flow in minutes.
+Set up VibeBlocks and run a first flow in minutes.
 
 ## Steps
 
-1. Install VibeFlow.
+1. Install VibeBlocks.
 2. Define a minimal context.
-3. Create a few beats.
+3. Create a few blocks.
 4. Run a flow.
 
 ## Reference

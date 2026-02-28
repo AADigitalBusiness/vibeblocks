@@ -10,7 +10,7 @@ import warnings
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Generic, TypeVar, Literal, List, Dict, Any, Type, Optional, Set, Callable
-from vibeflow.utils import serialization
+from vibeblocks.utils import serialization
 
 T = TypeVar("T")
 
