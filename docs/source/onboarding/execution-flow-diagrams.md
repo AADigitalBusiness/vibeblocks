@@ -1,20 +1,20 @@
 # Execution Flow Diagrams
 
-## Workflow Success Path
+## Flow Success Path
 
 ```text
-Start -> Task 1 -> Task 2 -> Task 3 -> Success
+Start -> Beat 1 -> Beat 2 -> Beat 3 -> Success
 ```
 
-## Workflow Failure with Compensation
+## Flow Failure with Compensation
 
 ```text
-Start -> Task 1 -> Task 2 -> Task 3 fails
-                  <- Undo Task 2 <- Undo Task 1
+Start -> Beat 1 -> Beat 2 -> Beat 3 fails
+                  <- Undo Beat 2 <- Undo Beat 1
 Result: Failed outcome after compensation
 ```
 
 ## Notes
 
 - Compensation runs in reverse order of completed steps.
-- Retry is applied per task according to the configured policy.
+- Retry is applied per beat according to the configured policy.

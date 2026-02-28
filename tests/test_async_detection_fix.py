@@ -2,24 +2,29 @@ import pytest
 import asyncio
 from functools import partial
 from typing import Any
-from taskchain.components.beat import Beat
-from taskchain.core.context import ExecutionContext
-from taskchain.runtime.runner import SyncRunner, AsyncRunner
-from taskchain.utils.inspection import is_async_callable
+from vibeflow.components.beat import Beat
+from vibeflow.core.context import ExecutionContext
+from vibeflow.runtime.runner import SyncRunner, AsyncRunner
+from vibeflow.utils.inspection import is_async_callable
+
 
 async def async_fn(ctx):
     pass
+
 
 class AsyncCallable:
     async def __call__(self, ctx):
         pass
 
+
 def sync_fn(ctx):
     pass
+
 
 class SyncCallable:
     def __call__(self, ctx):
         pass
+
 
 def test_inspection_util():
     # Use dummy arguments for callables if needed, but inspect doesn't call them.
@@ -31,6 +36,7 @@ def test_inspection_util():
     assert not is_async_callable(sync_fn)
     assert not is_async_callable(SyncCallable())
     assert not is_async_callable(partial(sync_fn))
+
 
 def test_beat_async_detection():
     # No need for async context, just checking property
@@ -46,6 +52,7 @@ def test_beat_async_detection():
 
     t4 = Beat("t4", sync_fn)
     assert not t4.is_async, "Sync function should be detected as sync"
+
 
 def test_beat_runtime_safety_sync():
     # If a function is sync but returns a coroutine (undetected async)

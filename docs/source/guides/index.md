@@ -9,5 +9,4 @@ tasks-processes-workflows
 sync-vs-async-runner
 context-serialization
 recipes
-cookbook
 ```

@@ -4,18 +4,19 @@ import inspect
 import time
 from typing import Any, Awaitable, Callable, Optional, TypeVar, Union
 
-from taskchain.core.context import ExecutionContext
-from taskchain.core.errors import BeatExecutionError, BeatTimeoutError
-from taskchain.core.executable import Executable
-from taskchain.core.outcome import Outcome
-from taskchain.policies.retry import RetryPolicy
-from taskchain.utils.inspection import is_async_callable
+from vibeflow.core.context import ExecutionContext
+from vibeflow.core.errors import BeatExecutionError, BeatTimeoutError
+from vibeflow.core.executable import Executable
+from vibeflow.core.outcome import Outcome
+from vibeflow.policies.retry import RetryPolicy
+from vibeflow.utils.inspection import is_async_callable
 
 T = TypeVar("T")
 
 # Shared executor for synchronous beat timeouts to avoid overhead and thread leakage.
 # Using a large enough number of workers to handle concurrent beats.
-_TASK_TIMEOUT_EXECUTOR = concurrent.futures.ThreadPoolExecutor(thread_name_prefix="BeatTimeout")
+_TASK_TIMEOUT_EXECUTOR = concurrent.futures.ThreadPoolExecutor(
+    thread_name_prefix="BeatTimeout")
 
 
 class Beat(Executable[T]):
@@ -41,7 +42,8 @@ class Beat(Executable[T]):
         self.timeout = timeout
 
         self._is_async = is_async_callable(self.func)
-        self._is_undo_async = is_async_callable(self.undo) if self.undo else False
+        self._is_undo_async = is_async_callable(
+            self.undo) if self.undo else False
 
     @property
     def is_async(self) -> bool:
@@ -94,7 +96,8 @@ class Beat(Executable[T]):
 
             except Exception as e:
                 duration = int((time.time() - start_time) * 1000)
-                ctx.log_event("ERROR", self.name, f"Beat Failed: {ctx.format_exception(e)}")
+                ctx.log_event("ERROR", self.name,
+                              f"Beat Failed: {ctx.format_exception(e)}")
 
                 if self.retry_policy.should_retry(attempt, e):
                     delay = self.retry_policy.calculate_delay(attempt)
@@ -140,7 +143,8 @@ class Beat(Executable[T]):
 
             except Exception as e:
                 duration = int((time.time() - start_time) * 1000)
-                ctx.log_event("ERROR", self.name, f"Beat Failed: {ctx.format_exception(e)}")
+                ctx.log_event("ERROR", self.name,
+                              f"Beat Failed: {ctx.format_exception(e)}")
 
                 if self.retry_policy.should_retry(attempt, e):
                     delay = self.retry_policy.calculate_delay(attempt)
@@ -172,7 +176,8 @@ class Beat(Executable[T]):
             try:
                 self.undo(ctx)
             except Exception as e:
-                ctx.log_event("ERROR", self.name, f"Compensation Failed: {ctx.format_exception(e)}")
+                ctx.log_event("ERROR", self.name,
+                              f"Compensation Failed: {ctx.format_exception(e)}")
                 raise
             return None
 
@@ -185,5 +190,6 @@ class Beat(Executable[T]):
             if inspect.isawaitable(res):
                 await res
         except Exception as e:
-            ctx.log_event("ERROR", self.name, f"Compensation Failed: {ctx.format_exception(e)}")
+            ctx.log_event("ERROR", self.name,
+                          f"Compensation Failed: {ctx.format_exception(e)}")
             raise

@@ -5,9 +5,9 @@ import sys
 sys.path.insert(0, os.path.abspath('../../src'))
 
 # -- Project information -----------------------------------------------------
-project = 'TaskChain'
-copyright = '2026, TaskChain Team'
-author = 'TaskChain Team'
+project = 'VibeFlow'
+copyright = '2026, VibeFlow Team'
+author = 'VibeFlow Team'
 release = '0.1.0'
 
 # -- General configuration ---------------------------------------------------

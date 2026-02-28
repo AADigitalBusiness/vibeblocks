@@ -1,6 +1,6 @@
 # Failure Strategies
 
-TaskChain supports three main strategies:
+VibeFlow supports three main strategies:
 
 - `ABORT`: stop immediately on failure
 - `CONTINUE`: record failure and proceed

@@ -1,10 +1,12 @@
+from vibeflow.core.decorators import beat
 import pytest
 import time
-from taskchain.utils import serialization
-from taskchain.components.chain import Chain
-from taskchain.core.executable import Executable
-from taskchain.core.context import ExecutionContext
-from taskchain.core.outcome import Outcome
+from vibeflow.utils import serialization
+from vibeflow.components.chain import Chain
+from vibeflow.core.executable import Executable
+from vibeflow.core.context import ExecutionContext
+from vibeflow.core.outcome import Outcome
+
 
 class FailingStep(Executable):
     def __init__(self, name):
@@ -20,6 +22,7 @@ class FailingStep(Executable):
     def compensate(self, ctx):
         pass
 
+
 def test_serialization_set_and_exception():
     data = {"tags": {"a", "b"}, "error": ValueError("oops")}
     try:
@@ -28,6 +31,7 @@ def test_serialization_set_and_exception():
         assert "oops" in json_str
     except TypeError:
         pytest.fail("serialization.to_json failed on set or Exception")
+
 
 def test_chain_exception_handling():
     # Use a raw executable that raises, not a Beat
@@ -45,7 +49,9 @@ def test_chain_exception_handling():
         # Check if original error is preserved
         assert any("Boom" in str(e) for e in result.errors)
     except Exception as e:
-        pytest.fail(f"Chain.execute raised exception instead of returning Outcome: {e}")
+        pytest.fail(
+            f"Chain.execute raised exception instead of returning Outcome: {e}")
+
 
 def test_chain_duration():
     class SlowStep(Executable):
@@ -59,6 +65,7 @@ def test_chain_duration():
         def execute(self, ctx):
             time.sleep(0.1)
             return Outcome("SUCCESS", ctx)
+
         def compensate(self, ctx): pass
 
     step = SlowStep("slow_step")
@@ -68,7 +75,6 @@ def test_chain_duration():
     result = p.execute(ctx)
     assert result.duration_ms > 0
 
-from taskchain.core.decorators import beat
 
 def test_metadata_preservation():
     @beat(name="my_beat")

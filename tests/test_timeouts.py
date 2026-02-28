@@ -1,11 +1,12 @@
 import pytest
 import asyncio
 import time
-from taskchain.components.beat import Beat
-from taskchain.core.context import ExecutionContext
-from taskchain.core.errors import BeatTimeoutError
-from taskchain.runtime.runner import SyncRunner, AsyncRunner
-from taskchain.core.decorators import beat
+from vibeflow.components.beat import Beat
+from vibeflow.core.context import ExecutionContext
+from vibeflow.core.errors import BeatTimeoutError
+from vibeflow.runtime.runner import SyncRunner, AsyncRunner
+from vibeflow.core.decorators import beat
+
 
 def test_sync_beat_timeout():
     ctx = ExecutionContext(data={})
@@ -17,8 +18,10 @@ def test_sync_beat_timeout():
 
     outcome = SyncRunner().run(slow_sync_beat, ctx)
     assert outcome.status == "FAILED"
-    assert any(isinstance(e.__cause__, BeatTimeoutError) for e in outcome.errors)
+    assert any(isinstance(e.__cause__, BeatTimeoutError)
+               for e in outcome.errors)
     assert "timed out after 0.1s" in str(outcome.errors[0].__cause__)
+
 
 def test_async_beat_timeout():
     ctx = ExecutionContext(data={})
@@ -33,8 +36,10 @@ def test_async_beat_timeout():
 
     outcome = asyncio.run(run_test())
     assert outcome.status == "FAILED"
-    assert any(isinstance(e.__cause__, BeatTimeoutError) for e in outcome.errors)
+    assert any(isinstance(e.__cause__, BeatTimeoutError)
+               for e in outcome.errors)
     assert "timed out after 0.1s" in str(outcome.errors[0].__cause__)
+
 
 def test_sync_beat_no_timeout():
     ctx = ExecutionContext(data={})
@@ -46,6 +51,7 @@ def test_sync_beat_no_timeout():
 
     outcome = SyncRunner().run(fast_sync_beat, ctx)
     assert outcome.status == "SUCCESS"
+
 
 def test_async_beat_no_timeout():
     ctx = ExecutionContext(data={})

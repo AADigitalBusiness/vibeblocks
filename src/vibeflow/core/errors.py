@@ -14,11 +14,3 @@ class BeatTimeoutError(BeatExecutionError):
 class ChainExecutionError(VibeFlowError):
     """Raised when a Chain fails (bubbling up from a Beat)."""
     pass
-
-class FlowExecutionError(VibeFlowError):
-    """Raised when a Flow fails to orchestrate."""
-    pass
-
-class CompensationError(VibeFlowError):
-    """Raised when compensation logic fails."""
-    pass

@@ -1,12 +1,11 @@
 # Architecture
 
-TaskChain uses a composite executable model:
+VibeFlow uses a composite executable model:
 
-- `Task` (leaf)
-- `Process` (composite)
-- `Workflow` (orchestrator)
+- `Beat` (leaf)
+- `Chain` (composite)
+- `Flow` (orchestrator)
 
 State and traceability live in `ExecutionContext`.
 
 Reference: [Core Concepts (full)](../core_concepts.md)
-

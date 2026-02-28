@@ -1,6 +1,6 @@
 # Core Concepts
 
-Conceptual model and architecture for understanding TaskChain internals and behavior.
+Conceptual model and architecture for understanding VibeFlow's core components and behavior.
 
 ```{toctree}
 :maxdepth: 1

@@ -1,13 +1,15 @@
 import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from taskchain.core.context import ExecutionContext, Event
+from vibeflow.core.context import ExecutionContext, Event
+
 
 @dataclass
 class UserData:
     email: str
     user_id: str | None = None
     status: str = "pending"
+
 
 def test_context_serialization():
     data = UserData(email="test@example.com", user_id="123")
@@ -25,6 +27,7 @@ def test_context_serialization():
     assert len(new_ctx.trace) == 1
     assert new_ctx.trace[0].message == "message"
     assert isinstance(new_ctx.trace[0].timestamp, datetime)
+
 
 def test_context_log_event():
     ctx = ExecutionContext[dict](data={})

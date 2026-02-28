@@ -1,11 +1,12 @@
 import inspect
 from typing import TypeVar
 
-from taskchain.core.context import ExecutionContext
-from taskchain.core.executable import Executable
-from taskchain.core.outcome import Outcome
+from vibeflow.core.context import ExecutionContext
+from vibeflow.core.executable import Executable
+from vibeflow.core.outcome import Outcome
 
 T = TypeVar("T")
+
 
 class SyncRunner:
     """Executes flows synchronously."""
@@ -26,7 +27,8 @@ class SyncRunner:
         if isinstance(result, Outcome):
             return result
 
-        raise RuntimeError(f"Executable returned unexpected type: {type(result)}")
+        raise RuntimeError(
+            f"Executable returned unexpected type: {type(result)}")
 
 
 class AsyncRunner:
@@ -45,4 +47,5 @@ class AsyncRunner:
         if isinstance(result, Outcome):
             return result
 
-        raise RuntimeError(f"Executable returned unexpected type: {type(result)}")
+        raise RuntimeError(
+            f"Executable returned unexpected type: {type(result)}")

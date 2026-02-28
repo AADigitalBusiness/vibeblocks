@@ -36,7 +36,7 @@ manifest = flow.get_manifest()
 You can generate a JSON Schema for OpenAI Function Calling using `generate_function_schema`.
 
 ```python
-from taskchain.utils.schema import generate_function_schema
+from vibeflow.utils.schema import generate_function_schema
 from dataclasses import dataclass
 
 @dataclass
@@ -54,7 +54,7 @@ Pass this schema to the LLM as a tool definition. The LLM will respond with a JS
 Once you receive the JSON from the LLM:
 
 ```python
-from taskchain.vibeflow import VibeFlow
+from vibeflow.vibeflow import VibeFlow
 
 llm_response = {
     "name": "GeneratedFlow",

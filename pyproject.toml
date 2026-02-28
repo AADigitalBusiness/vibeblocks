@@ -5,40 +5,90 @@ build-backend = "hatchling.build"
 [project]
 name = "vibeflow"
 dynamic = ["version"]
-description = "AI-First orchestration library for Python. Formerly TaskChain."
+description = "Lightweight Python workflow orchestration library for AI agents, async task execution, retries, and failure-safe automation."
 readme = "README.md"
 requires-python = ">=3.8"
 license = { file = "LICENSE" }
+license-files = ["LICENSE"]
+keywords = [
+  "workflow orchestration",
+  "python automation",
+  "ai agents",
+  "task execution",
+  "async workflows",
+  "retry logic",
+  "failure recovery",
+  "llm orchestration",
+]
 authors = [
-  { name = "Alejandro Avendaño" },
+  { name = "Alejandro Avendaño", email = "aavendano79@gmail.com" },
+]
+maintainers = [
+  { name = "AADigitalBusiness", email = "admin@aadigitalbusiness.com" },
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
+  "Intended Audience :: Information Technology",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Typing :: Typed",
+  "Framework :: AsyncIO",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Software Development :: Libraries :: Application Frameworks",
+  "Topic :: Software Development :: Libraries",
   "Topic :: Software Development :: Libraries :: Python Modules",
   "Topic :: System :: Distributed Computing",
 ]
 
 [project.urls]
-Homepage = "https://github.com/alejandro-avendano/vibeflow"
-Documentation = "https://github.com/alejandro-avendano/vibeflow#readme"
-Issues = "https://github.com/alejandro-avendano/vibeflow/issues"
-Source = "https://github.com/alejandro-avendano/vibeflow"
+Homepage = "https://github.com/AADigitalBusiness/vibeflow"
+Documentation = "https://github.com/AADigitalBusiness/vibeflow#readme"
+Issues = "https://github.com/AADigitalBusiness/vibeflow/issues"
+Repository = "https://github.com/AADigitalBusiness/vibeflow"
+Source = "https://github.com/AADigitalBusiness/vibeflow"
+Changelog = "https://github.com/AADigitalBusiness/vibeflow/blob/main/CHANGELOG.md"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/taskchain"]
+packages = ["src/vibeflow"]
 
 [tool.hatch.version]
-path = "src/taskchain/__init__.py"
+path = "src/vibeflow/__init__.py"
 
 [tool.pytest.ini_options]
 addopts = "--strict-markers"
 testpaths = ["tests"]
 pythonpath = ["src"]
+
+[project.optional-dependencies]
+test = [
+  "pytest",
+]
+docs = [
+  "sphinx",
+  "myst-parser",
+  "sphinx-rtd-theme",
+]
+release = [
+  "build",
+  "hatchling",
+  "twine",
+]
+dev = [
+  "pytest",
+  "sphinx",
+  "myst-parser",
+  "sphinx-rtd-theme",
+  "ruff",
+  "build",
+  "hatchling",
+  "twine",
+]

@@ -1,16 +1,18 @@
 from dataclasses import dataclass
-from taskchain.components.beat import Beat
-from taskchain.components.flow import Flow
-from taskchain.core.context import ExecutionContext
-from taskchain.policies.failure import FailureStrategy
-from taskchain.policies.retry import RetryPolicy
-from taskchain.runtime.runner import SyncRunner
+from vibeflow.components.beat import Beat
+from vibeflow.components.flow import Flow
+from vibeflow.core.context import ExecutionContext
+from vibeflow.policies.failure import FailureStrategy
+from vibeflow.policies.retry import RetryPolicy
+from vibeflow.runtime.runner import SyncRunner
+
 
 @dataclass
 class UserData:
     email: str
     user_id: str | None = None
     status: str = "pending"
+
 
 def test_onboarding_success():
     data = UserData(email="test@example.com")
@@ -35,7 +37,8 @@ def test_onboarding_success():
     beats = [
         Beat("ValidateEmail", validate_email),
         Beat("CreateAccount", create_account, undo=undo_create_account),
-        Beat("SendWelcomeEmail", send_welcome_email, retry_policy=RetryPolicy(max_attempts=3))
+        Beat("SendWelcomeEmail", send_welcome_email,
+             retry_policy=RetryPolicy(max_attempts=3))
     ]
 
     flow = Flow("UserOnboarding", beats, strategy=FailureStrategy.COMPENSATE)
@@ -44,6 +47,7 @@ def test_onboarding_success():
     assert outcome.status == "SUCCESS"
     assert ctx.data.user_id == "user_123"
     assert ctx.data.status == "created"
+
 
 def test_onboarding_failure_compensation():
     data = UserData(email="test@example.com")
@@ -65,7 +69,8 @@ def test_onboarding_failure_compensation():
     beats = [
         Beat("ValidateEmail", validate_email),
         Beat("CreateAccount", create_account, undo=undo_create_account),
-        Beat("SendWelcomeEmail", send_welcome_email, retry_policy=RetryPolicy(max_attempts=2, delay=0.001))
+        Beat("SendWelcomeEmail", send_welcome_email,
+             retry_policy=RetryPolicy(max_attempts=2, delay=0.001))
     ]
 
     flow = Flow("UserOnboarding", beats, strategy=FailureStrategy.COMPENSATE)

@@ -1,9 +1,10 @@
 import pytest
-from taskchain import Beat, Chain, Flow, ExecutionContext
-from taskchain.components.beat import BeatTimeoutError
-from taskchain.policies.retry import RetryPolicy
-from taskchain.policies.failure import FailureStrategy
+from vibeflow import Beat, Chain, Flow, ExecutionContext
+from vibeflow.components.beat import BeatTimeoutError
+from vibeflow.policies.retry import RetryPolicy
+from vibeflow.policies.failure import FailureStrategy
 import time
+
 
 def test_beat_timeout():
     def slow_task(ctx):
@@ -16,21 +17,26 @@ def test_beat_timeout():
     # execute() catches exception and returns Outcome(FAILED)
     outcome = t.execute(ctx)
     assert outcome.status == "FAILED"
-    assert any(isinstance(e.__cause__, BeatTimeoutError) for e in outcome.errors)
+    assert any(isinstance(e.__cause__, BeatTimeoutError)
+               for e in outcome.errors)
+
 
 def test_beat_retry():
     attempts = 0
+
     def failing_logic(ctx):
         nonlocal attempts
         attempts += 1
         raise ValueError("Fail")
 
-    t = Beat("retry_beat", failing_logic, retry_policy=RetryPolicy(max_attempts=3, delay=0.001))
+    t = Beat("retry_beat", failing_logic,
+             retry_policy=RetryPolicy(max_attempts=3, delay=0.001))
     ctx = ExecutionContext({})
     outcome = t.execute(ctx)
 
     assert outcome.status == "FAILED"
     assert attempts == 3
+
 
 def test_chain_execution():
     def step1(ctx):
@@ -46,6 +52,7 @@ def test_chain_execution():
     assert outcome.status == "SUCCESS"
     assert ctx.data["step1"] is True
     assert ctx.data["step2"] is True
+
 
 def test_flow_compensation():
     def step1(ctx):

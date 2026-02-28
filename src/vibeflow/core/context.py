@@ -10,9 +10,10 @@ import warnings
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Generic, TypeVar, Literal, List, Dict, Any, Type, Optional, Set, Callable
-from taskchain.utils import serialization
+from vibeflow.utils import serialization
 
 T = TypeVar("T")
+
 
 @dataclass
 class Event:
@@ -21,13 +22,15 @@ class Event:
     source: str
     message: str
 
+
 @dataclass
 class ExecutionContext(Generic[T]):
     data: T
     trace: List[Event] = field(default_factory=list)
     metadata: Dict[str, Any] = field(default_factory=dict)
     completed_steps: Set[str] = field(default_factory=set)
-    exception_sanitizer: Callable[[Exception], str] = field(default=str, repr=False, compare=False)
+    exception_sanitizer: Callable[[Exception], str] = field(
+        default=str, repr=False, compare=False)
 
     def log_event(self, level: Literal["INFO", "ERROR", "DEBUG"], source: str, message: str) -> None:
         """Logs an event to the trace."""
@@ -55,21 +58,22 @@ class ExecutionContext(Generic[T]):
     @staticmethod
     def _parse_trace(trace_data: Any) -> List[Event]:
         if not isinstance(trace_data, list):
-             raise ValueError("Invalid trace format")
+            raise ValueError("Invalid trace format")
 
         trace_objs = []
         for e in trace_data:
             if not isinstance(e, dict):
-                 raise ValueError("Invalid trace event format")
+                raise ValueError("Invalid trace event format")
 
             # Strict validation of required fields
             required_fields = ["timestamp", "level", "source", "message"]
             if not all(field in e for field in required_fields):
-                 raise ValueError("Invalid trace event format: missing fields")
+                raise ValueError("Invalid trace event format: missing fields")
 
             ts_str = e.get("timestamp")
             try:
-                ts = datetime.fromisoformat(ts_str) if ts_str else datetime.now(timezone.utc)
+                ts = datetime.fromisoformat(
+                    ts_str) if ts_str else datetime.now(timezone.utc)
             except ValueError:
                 ts = datetime.now(timezone.utc)
 
@@ -91,7 +95,8 @@ class ExecutionContext(Generic[T]):
             try:
                 return data_cls.model_validate(raw_data)
             except Exception as e:
-                warnings.warn(f"Failed to deserialize using Pydantic v2 model_validate: {e}", RuntimeWarning)
+                warnings.warn(
+                    f"Failed to deserialize using Pydantic v2 model_validate: {e}", RuntimeWarning)
                 return raw_data
 
         # 2. Try Pydantic v1 support
@@ -99,7 +104,8 @@ class ExecutionContext(Generic[T]):
             try:
                 return data_cls.parse_obj(raw_data)  # type: ignore
             except Exception as e:
-                warnings.warn(f"Failed to deserialize using Pydantic v1 parse_obj: {e}", RuntimeWarning)
+                warnings.warn(
+                    f"Failed to deserialize using Pydantic v1 parse_obj: {e}", RuntimeWarning)
                 return raw_data
 
         # 3. Try standard Dataclass dictionary unpacking
@@ -107,7 +113,8 @@ class ExecutionContext(Generic[T]):
             try:
                 return data_cls(**raw_data)
             except TypeError as e:
-                warnings.warn(f"Failed to deserialize dataclass: {e}", RuntimeWarning)
+                warnings.warn(
+                    f"Failed to deserialize dataclass: {e}", RuntimeWarning)
                 return raw_data
 
         # 4. Fallback: Standard instantiation if signature matches dict keys
@@ -116,7 +123,8 @@ class ExecutionContext(Generic[T]):
                 # Risky, but better than silent fail when someone uses typed dicts.
                 return data_cls(**raw_data)
             except TypeError as e:
-                warnings.warn(f"Failed to deserialize using standard instantiation: {e}", RuntimeWarning)
+                warnings.warn(
+                    f"Failed to deserialize using standard instantiation: {e}", RuntimeWarning)
                 return raw_data
 
         return raw_data
@@ -141,11 +149,11 @@ class ExecutionContext(Generic[T]):
 
         metadata = parsed.get("metadata", {})
         if not isinstance(metadata, dict):
-             raise ValueError("Invalid metadata format")
+            raise ValueError("Invalid metadata format")
 
         completed_steps = parsed.get("completed_steps", [])
         if not isinstance(completed_steps, list):
-             raise ValueError("Invalid completed_steps format")
+            raise ValueError("Invalid completed_steps format")
 
         return cls(
             data=data_obj,

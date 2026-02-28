@@ -4,7 +4,6 @@ Designed to work with OpenAI Function Calling or similar LLM structured outputs.
 """
 
 import dataclasses
-import inspect
 from typing import Any, Dict, List, Type, get_args, get_origin, Union
 
 def generate_function_schema(flow_manifest: Dict[str, Any], context_model: Type[Any]) -> Dict[str, Any]:

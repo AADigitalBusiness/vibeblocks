@@ -1,17 +1,19 @@
 import pytest
 from dataclasses import dataclass
 from typing import Optional
-from taskchain.components.beat import Beat
-from taskchain.components.flow import Flow
-from taskchain.utils.schema import generate_function_schema
-from taskchain.vibeflow import VibeFlow
-from taskchain.core.context import ExecutionContext
+from vibeflow.components.beat import Beat
+from vibeflow.components.flow import Flow
+from vibeflow.utils.schema import generate_function_schema
+from vibeflow.vibeflow import VibeFlow
+from vibeflow.core.context import ExecutionContext
+
 
 @dataclass
 class UserContext:
     user_id: int
     email: str
     active: bool = False
+
 
 def test_flow_manifest():
     def beat1(ctx): pass
@@ -30,6 +32,7 @@ def test_flow_manifest():
     assert manifest["steps"][0]["name"] == "b1"
     assert manifest["steps"][0]["description"] == "First beat"
 
+
 def test_schema_generation():
     def beat1(ctx): pass
     b1 = Beat("b1", beat1)
@@ -43,6 +46,7 @@ def test_schema_generation():
     data_props = schema["parameters"]["properties"]["initial_data"]["properties"]
     assert "user_id" in data_props
     assert "email" in data_props
+
 
 def test_vibeflow_dynamic_execution():
     def add_one(ctx):
@@ -60,7 +64,8 @@ def test_vibeflow_dynamic_execution():
 
     # We cheat a bit here passing a dict instead of UserContext as initial_data
     # because ExecutionContext handles dicts fine.
-    result = VibeFlow.run_from_json(json_req, initial_data={"val": 0}, available_beats=beats)
+    result = VibeFlow.run_from_json(
+        json_req, initial_data={"val": 0}, available_beats=beats)
 
     assert result.status == "SUCCESS"
     assert result.context.data["val"] == 2

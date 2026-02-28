@@ -5,11 +5,12 @@ Decorators for wrapping user functions into library components.
 from functools import update_wrapper
 from typing import Any, Callable, List, Optional, Type, TypeVar
 
-from taskchain.components.beat import Beat
-from taskchain.core.context import ExecutionContext
-from taskchain.policies.retry import BackoffStrategy, RetryPolicy
+from vibeflow.components.beat import Beat
+from vibeflow.core.context import ExecutionContext
+from vibeflow.policies.retry import BackoffStrategy, RetryPolicy
 
 T = TypeVar("T")
+
 
 def beat(
     name: Optional[str] = None,

@@ -4,11 +4,12 @@ Allows creating and executing flows from JSON descriptions on the fly.
 """
 
 from typing import Any, Dict, List, Type, Optional, Union, Awaitable
-from taskchain.components.flow import Flow
-from taskchain.components.beat import Beat
-from taskchain.policies.failure import FailureStrategy
-from taskchain.utils.execution import execute_flow
-from taskchain.core.outcome import Outcome
+from vibeflow.components.flow import Flow
+from vibeflow.components.beat import Beat
+from vibeflow.policies.failure import FailureStrategy
+from vibeflow.utils.execution import execute_flow
+from vibeflow.core.outcome import Outcome
+
 
 class VibeFlow:
     """
@@ -53,7 +54,8 @@ class VibeFlow:
         flow_steps = []
         for name in step_names:
             if name not in available_beats:
-                raise ValueError(f"Beat '{name}' not found in available_beats.")
+                raise ValueError(
+                    f"Beat '{name}' not found in available_beats.")
             flow_steps.append(available_beats[name])
 
         # Construct Flow

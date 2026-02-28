@@ -1,6 +1,6 @@
 # VibeFlow
 
-**AI-First Orchestration for Python. Formerly TaskChain.**
+**AI-First Orchestration for Python.**
 
 VibeFlow evolves the concept of task orchestration into an AI-ready framework. It maintains the "Zero-Gravity" architecture (no external dependencies) while introducing a Semantic Layer for LLM integration and dynamic flow generation.
 
@@ -21,7 +21,7 @@ pip install vibeflow
 ### 1. Classic Usage
 
 ```python
-from taskchain import Flow, Beat, ExecutionContext
+from vibeflow import Flow, ExecutionContext, beat, execute_flow
 
 # 1. Define your beats with @beat decorator
 @beat(description="Extracts data from source")
@@ -46,7 +46,6 @@ def load(ctx: ExecutionContext):
 pipeline = Flow("ETL_Flow", [extract, transform, load])
 
 # 3. Execute
-from taskchain.utils.execution import execute_flow
 result = execute_flow(pipeline, data={})
 
 if result.status == "SUCCESS":
@@ -60,7 +59,7 @@ else:
 VibeFlow allows LLMs to generate flows on the fly using JSON schemas.
 
 ```python
-from taskchain.vibeflow import VibeFlow
+from vibeflow.vibeflow import VibeFlow
 
 # JSON definition (could come from an LLM)
 flow_request = {
@@ -79,13 +78,6 @@ beats_registry = {
 # Execute dynamically
 result = VibeFlow.run_from_json(flow_request, initial_data={}, available_beats=beats_registry)
 ```
-
-## Migration from TaskChain
-
-*   `Task` -> `Beat`
-*   `Process` -> `Chain`
-*   `Workflow` -> `Flow`
-*   `@task` -> `@beat`
 
 ## License
 

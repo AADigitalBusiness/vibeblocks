@@ -1,9 +1,9 @@
 from typing import TypeVar, Union, Awaitable
 
-from taskchain.core.context import ExecutionContext
-from taskchain.core.executable import Executable
-from taskchain.core.outcome import Outcome
-from taskchain.runtime.runner import AsyncRunner, SyncRunner
+from vibeflow.core.context import ExecutionContext
+from vibeflow.core.executable import Executable
+from vibeflow.core.outcome import Outcome
+from vibeflow.runtime.runner import AsyncRunner, SyncRunner
 
 T = TypeVar("T")
 

@@ -1,7 +1,7 @@
-TaskChain Documentation
-=======================
+VibeFlow Documentation
+======================
 
-TaskChain is a reusable, framework-agnostic Python library designed to organize business logic using structured workflows.
+VibeFlow is a reusable, framework-agnostic Python library designed to organize business logic using structured flows.
 
 .. toctree::
    :maxdepth: 2

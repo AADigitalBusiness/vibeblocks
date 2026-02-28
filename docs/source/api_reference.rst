@@ -1,82 +1,97 @@
 API Reference
 =============
 
-TaskChain Core
---------------
+VibeFlow Core
+-------------
 
-.. automodule:: taskchain.core.context
+.. automodule:: vibeflow.core.context
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: taskchain.core.outcome
+.. automodule:: vibeflow.core.outcome
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: taskchain.core.errors
+.. automodule:: vibeflow.core.errors
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: taskchain.core.executable
+.. automodule:: vibeflow.core.executable
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: taskchain.core.decorators
+.. automodule:: vibeflow.core.decorators
    :members:
    :undoc-members:
    :show-inheritance:
 
-TaskChain Components
---------------------
+VibeFlow Components
+-------------------
 
-.. automodule:: taskchain.components.task
+.. automodule:: vibeflow.components.beat
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: taskchain.components.process
+.. automodule:: vibeflow.components.chain
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: taskchain.components.workflow
+.. automodule:: vibeflow.components.flow
    :members:
    :undoc-members:
    :show-inheritance:
 
-TaskChain Policies
-------------------
-
-.. automodule:: taskchain.policies.retry
+.. automodule:: vibeflow.vibeflow
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: taskchain.policies.failure
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-TaskChain Runtime
+VibeFlow Policies
 -----------------
 
-.. automodule:: taskchain.runtime.runner
+.. automodule:: vibeflow.policies.retry
    :members:
    :undoc-members:
    :show-inheritance:
 
-TaskChain Utils
----------------
-
-.. automodule:: taskchain.utils.inspection
+.. automodule:: vibeflow.policies.failure
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: taskchain.utils.serialization
+VibeFlow Runtime
+----------------
+
+.. automodule:: vibeflow.runtime.runner
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+VibeFlow Utils
+--------------
+
+.. automodule:: vibeflow.utils.execution
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: vibeflow.utils.inspection
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: vibeflow.utils.schema
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: vibeflow.utils.serialization
    :members:
    :undoc-members:
    :show-inheritance:

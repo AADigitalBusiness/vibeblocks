@@ -1,2 +1,2 @@
-# taskchain.utils
+# vibeflow.utils
 # Low-level utilities

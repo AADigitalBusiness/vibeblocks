@@ -1,4 +1,4 @@
-# TaskChain Documentation Structure Proposal
+# VibeFlow Documentation Structure Proposal
 
 ## Purpose
 
@@ -71,7 +71,7 @@ docs/
 ## Navigation Diagram
 
 ```text
-TaskChain Documentation
+VibeFlow Documentation
 |- Home
 |- Start Here
 |- Onboarding

@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar, Union, Awaitable
-from taskchain.core.context import ExecutionContext
-from taskchain.core.outcome import Outcome
+from vibeflow.core.context import ExecutionContext
+from vibeflow.core.outcome import Outcome
 
 T = TypeVar("T")
+
 
 class Executable(Generic[T], ABC):
     """Abstract base class for all executable units in VibeFlow."""
