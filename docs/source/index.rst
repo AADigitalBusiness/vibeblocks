@@ -1,7 +1,7 @@
-TaskChain Documentation
-=======================
+VibeBlocks Documentation
+========================
 
-TaskChain is a reusable, framework-agnostic Python library designed to organize business logic using structured workflows.
+VibeBlocks is a reusable, framework-agnostic Python library designed to organize business logic using structured flows.
 
 .. toctree::
    :maxdepth: 2

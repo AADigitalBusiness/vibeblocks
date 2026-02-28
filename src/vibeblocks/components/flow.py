@@ -1,5 +1,5 @@
 """
-Flow orchestrator for executing trees of Beats and Chaines.
+Flow orchestrator for executing trees of Blocks and Chaines.
 Handles high-level failure policies.
 """
 
@@ -7,19 +7,20 @@ import inspect
 import time
 from typing import Any, Awaitable, Dict, List, Literal, Optional, Tuple, TypeVar, Union
 
-from taskchain.core.context import ExecutionContext
-from taskchain.core.executable import Executable
-from taskchain.core.outcome import Outcome
-from taskchain.policies.failure import FailureStrategy
+from vibeblocks.core.context import ExecutionContext
+from vibeblocks.core.executable import Executable
+from vibeblocks.core.outcome import Outcome
+from vibeblocks.policies.failure import FailureStrategy
 
 T = TypeVar("T")
 
 
 class Flow(Executable[T]):
     """
-    The top-level orchestrator that manages a sequence of steps (Beats or Chaines)
+    The top-level orchestrator that manages a sequence of steps (Blocks or Chaines)
     and handles failures according to a strategy.
     """
+
     def __init__(
         self,
         name: str,
@@ -69,7 +70,6 @@ class Flow(Executable[T]):
         collected_errors = []
 
         for step in self.steps:
-            step_errors = []
             try:
                 result = step.execute(ctx)
 
@@ -89,7 +89,8 @@ class Flow(Executable[T]):
                     elif action == "COMPENSATE":
                         res = step.compensate(ctx)
                         self._ensure_not_awaitable(
-                            res, getattr(step, "name", "Unknown"), "step compensation"
+                            res, getattr(
+                                step, "name", "Unknown"), "step compensation"
                         )
                         self.compensate(ctx)
                         if outcome:
@@ -99,69 +100,33 @@ class Flow(Executable[T]):
                         return outcome
 
             except Exception as e:
-                ctx.log_event("ERROR", self.name, f"Flow Error: {ctx.format_exception(e)}")
-                collected_errors.append(e)
-
-            if step_errors:
-                outcome = self._handle_sync_step_failure(ctx, step, step_errors, start_time)
-                if outcome:
+                ctx.log_event("ERROR", self.name,
+                              f"Flow Error: {ctx.format_exception(e)}")
+                action, outcome = self._handle_failure_strategy(
+                    ctx, step, [e], start_time
+                )
+                if action == "ABORT":
                     return outcome
-                collected_errors.extend(step_errors)
+                elif action == "CONTINUE":
+                    collected_errors.append(e)
+                    continue
+                elif action == "COMPENSATE":
+                    res = step.compensate(ctx)
+                    self._ensure_not_awaitable(
+                        res, getattr(
+                            step, "name", "Unknown"), "step compensation"
+                    )
+                    res = self.compensate(ctx)
+                    self._ensure_not_awaitable(
+                        res, self.name, "flow compensation")
+                    if outcome:
+                        outcome.duration_ms = (
+                            time.perf_counter_ns() - start_time
+                        ) // 1_000_000
+                    return outcome
 
         return self._finish_flow(ctx, collected_errors, start_time)
 
-    def _handle_sync_step_failure(
-        self,
-        ctx: ExecutionContext[T],
-        step: Executable[T],
-        errors: List[Exception],
-        start_time: int,
-    ) -> Union[Outcome[T], None]:
-        """
-        Handles failure logic for a synchronous step based on the flow's strategy.
-        Returns an Outcome if the flow should stop, or None if it should continue.
-        """
-        step_name = getattr(step, "name", "Unknown")
-        duration = (time.perf_counter_ns() - start_time) // 1_000_000
-
-        if self.strategy == FailureStrategy.ABORT:
-            ctx.log_event(
-                "ERROR",
-                self.name,
-                f"Flow Aborted due to failure in step '{step_name}'",
-            )
-            return Outcome("ABORTED", ctx, errors, duration_ms=duration)
-
-        elif self.strategy == FailureStrategy.CONTINUE:
-            ctx.log_event(
-                "ERROR",
-                self.name,
-                f"Flow Continuing after failure in step '{step_name}'",
-            )
-            return None
-
-        elif self.strategy == FailureStrategy.COMPENSATE:
-            ctx.log_event(
-                "ERROR",
-                self.name,
-                f"Flow Compensating due to failure in step '{step_name}'",
-            )
-
-            # Compensate the current failing step
-            res = step.compensate(ctx)
-            if inspect.isawaitable(res):
-                if inspect.iscoroutine(res):
-                    res.close()
-                raise RuntimeError(
-                    f"Step '{step_name}' returned an async compensation "
-                    "in a sync flow. Use AsyncRunner."
-                )
-
-            # Compensate previous steps
-            self.compensate(ctx)
-            return Outcome("FAILED", ctx, errors, duration_ms=duration)
-
-        return None
     async def _execute_async(self, ctx: ExecutionContext[T]) -> Outcome[T]:
         start_time = time.perf_counter_ns()
         ctx.log_event("INFO", self.name, "Flow Started (Async)")
@@ -197,7 +162,8 @@ class Flow(Executable[T]):
                         return outcome
 
             except Exception as e:
-                ctx.log_event("ERROR", self.name, f"Flow Error: {ctx.format_exception(e)}")
+                ctx.log_event("ERROR", self.name,
+                              f"Flow Error: {ctx.format_exception(e)}")
                 collected_errors.append(e)
 
                 action, outcome = self._handle_failure_strategy(
@@ -302,7 +268,8 @@ class Flow(Executable[T]):
         final_status: Literal["SUCCESS", "FAILED"] = (
             "FAILED" if collected_errors else "SUCCESS"
         )
-        ctx.log_event("INFO", self.name, f"Flow Completed with status {final_status}")
+        ctx.log_event("INFO", self.name,
+                      f"Flow Completed with status {final_status}")
 
         if final_status == "SUCCESS":
             ctx.completed_steps.add(self.name)

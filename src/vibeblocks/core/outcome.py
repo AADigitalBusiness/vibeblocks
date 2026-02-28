@@ -1,8 +1,9 @@
 from dataclasses import dataclass, field
 from typing import Generic, TypeVar, Literal, List
-from taskchain.core.context import ExecutionContext
+from vibeblocks.core.context import ExecutionContext
 
 T = TypeVar("T")
+
 
 @dataclass
 class Outcome(Generic[T]):

@@ -1,5 +1,5 @@
 # Byte-compiled / optimized / DLL files
-__pycache__/
+**/__pycache__/**
 *.py[cod]
 *.class
 
@@ -95,8 +95,8 @@ ipython_config.py
 __pypackages__/
 
 # Celery stuff
-celerybeat-schedule
-celerybeat.pid
+celeryblock-schedule
+celeryblock.pid
 
 # SageMath parsed files
 *.sage.py

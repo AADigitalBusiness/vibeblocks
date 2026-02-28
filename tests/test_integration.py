@@ -1,16 +1,18 @@
 from dataclasses import dataclass
-from taskchain.components.beat import Beat
-from taskchain.components.flow import Flow
-from taskchain.core.context import ExecutionContext
-from taskchain.policies.failure import FailureStrategy
-from taskchain.policies.retry import RetryPolicy
-from taskchain.runtime.runner import SyncRunner
+from vibeblocks.components.block import Block
+from vibeblocks.components.flow import Flow
+from vibeblocks.core.context import ExecutionContext
+from vibeblocks.policies.failure import FailureStrategy
+from vibeblocks.policies.retry import RetryPolicy
+from vibeblocks.runtime.runner import SyncRunner
+
 
 @dataclass
 class UserData:
     email: str
     user_id: str | None = None
     status: str = "pending"
+
 
 def test_onboarding_success():
     data = UserData(email="test@example.com")
@@ -32,18 +34,20 @@ def test_onboarding_success():
         # Simulate success
         pass
 
-    beats = [
-        Beat("ValidateEmail", validate_email),
-        Beat("CreateAccount", create_account, undo=undo_create_account),
-        Beat("SendWelcomeEmail", send_welcome_email, retry_policy=RetryPolicy(max_attempts=3))
+    blocks = [
+        Block("ValidateEmail", validate_email),
+        Block("CreateAccount", create_account, undo=undo_create_account),
+        Block("SendWelcomeEmail", send_welcome_email,
+              retry_policy=RetryPolicy(max_attempts=3))
     ]
 
-    flow = Flow("UserOnboarding", beats, strategy=FailureStrategy.COMPENSATE)
+    flow = Flow("UserOnboarding", blocks, strategy=FailureStrategy.COMPENSATE)
     outcome = SyncRunner().run(flow, ctx)
 
     assert outcome.status == "SUCCESS"
     assert ctx.data.user_id == "user_123"
     assert ctx.data.status == "created"
+
 
 def test_onboarding_failure_compensation():
     data = UserData(email="test@example.com")
@@ -62,13 +66,14 @@ def test_onboarding_failure_compensation():
     def send_welcome_email(ctx):
         raise ConnectionError("Email service down")
 
-    beats = [
-        Beat("ValidateEmail", validate_email),
-        Beat("CreateAccount", create_account, undo=undo_create_account),
-        Beat("SendWelcomeEmail", send_welcome_email, retry_policy=RetryPolicy(max_attempts=2, delay=0.001))
+    blocks = [
+        Block("ValidateEmail", validate_email),
+        Block("CreateAccount", create_account, undo=undo_create_account),
+        Block("SendWelcomeEmail", send_welcome_email,
+              retry_policy=RetryPolicy(max_attempts=2, delay=0.001))
     ]
 
-    flow = Flow("UserOnboarding", beats, strategy=FailureStrategy.COMPENSATE)
+    flow = Flow("UserOnboarding", blocks, strategy=FailureStrategy.COMPENSATE)
     outcome = SyncRunner().run(flow, ctx)
 
     assert outcome.status == "FAILED"

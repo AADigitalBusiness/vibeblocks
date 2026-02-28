@@ -1,82 +1,97 @@
 API Reference
 =============
 
-TaskChain Core
---------------
+VibeBlocks Core
+===============
 
-.. automodule:: taskchain.core.context
+.. automodule:: vibeblocks.core.context
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: taskchain.core.outcome
+.. automodule:: vibeblocks.core.outcome
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: taskchain.core.errors
+.. automodule:: vibeblocks.core.errors
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: taskchain.core.executable
+.. automodule:: vibeblocks.core.executable
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: taskchain.core.decorators
+.. automodule:: vibeblocks.core.decorators
    :members:
    :undoc-members:
    :show-inheritance:
 
-TaskChain Components
---------------------
+VibeBlocks Components
+=====================
 
-.. automodule:: taskchain.components.task
+.. automodule:: vibeblocks.components.block
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: taskchain.components.process
+.. automodule:: vibeblocks.components.chain
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: taskchain.components.workflow
+.. automodule:: vibeblocks.components.flow
    :members:
    :undoc-members:
    :show-inheritance:
 
-TaskChain Policies
-------------------
-
-.. automodule:: taskchain.policies.retry
+.. automodule:: vibeblocks.vibeblocks
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: taskchain.policies.failure
+VibeBlocks Policies
+===================
+
+.. automodule:: vibeblocks.policies.retry
    :members:
    :undoc-members:
    :show-inheritance:
 
-TaskChain Runtime
------------------
-
-.. automodule:: taskchain.runtime.runner
+.. automodule:: vibeblocks.policies.failure
    :members:
    :undoc-members:
    :show-inheritance:
 
-TaskChain Utils
----------------
+VibeBlocks Runtime
+==================
 
-.. automodule:: taskchain.utils.inspection
+.. automodule:: vibeblocks.runtime.runner
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: taskchain.utils.serialization
+VibeBlocks Utils
+================
+
+.. automodule:: vibeblocks.utils.execution
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: vibeblocks.utils.inspection
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: vibeblocks.utils.schema
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: vibeblocks.utils.serialization
    :members:
    :undoc-members:
    :show-inheritance:

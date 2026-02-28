@@ -1,6 +1,6 @@
 # Failure Strategies
 
-TaskChain supports three main strategies:
+VibeBlocks supports three main strategies:
 
 - `ABORT`: stop immediately on failure
 - `CONTINUE`: record failure and proceed

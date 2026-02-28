@@ -1,16 +1,16 @@
 <!-- @format -->
 
-# Getting Started with TaskChain
+# Getting Started with VibeBlocks
 
 ## Installation
 
 ```bash
-pip install taskchain
+pip install vibeblocks
 ```
 
 ## Basic Usage: User Onboarding Example
 
-This example demonstrates how to create a simple user onboarding workflow with compensation logic (rollback).
+This example demonstrates how to create a simple user onboarding flow with compensation logic (rollback).
 
 ### 1. Define Execution Context
 
@@ -18,7 +18,7 @@ First, define the data structure that will hold your workflow's state.
 
 ```python
 from dataclasses import dataclass
-from taskchain.core.context import ExecutionContext
+from vibeblocks import ExecutionContext
 
 @dataclass
 class UserData:
@@ -37,15 +37,15 @@ json_state = ctx.to_json()
 restored_ctx = ExecutionContext.from_json(json_state, data_cls=UserData)
 ```
 
-### 2. Define Tasks
+### 2. Define Blocks
 
-Create tasks using the `@task` decorator. Tasks can modify the context and define undo logic.
+Create blocks using the `@block` decorator. Blocks can modify the context and define undo logic.
 
 ```python
-from taskchain.core.decorators import task
-from taskchain.policies.retry import RetryPolicy
+from vibeblocks import block
+from vibeblocks.policies.retry import RetryPolicy
 
-@task()
+@block()
 def validate_email(ctx: ExecutionContext[UserData]):
     if "@" not in ctx.data.email:
         raise ValueError("Invalid email format")
@@ -55,33 +55,32 @@ def undo_create_account(ctx: ExecutionContext[UserData]):
     ctx.data.user_id = None
     ctx.data.status = "deleted"
 
-@task(undo=undo_create_account)
+@block(undo=undo_create_account)
 def create_account(ctx: ExecutionContext[UserData]):
     # Simulate DB call
     ctx.data.user_id = "user_123"
     ctx.data.status = "created"
     print("Account created")
 
-@task(retry_policy=RetryPolicy(max_attempts=3))
+@block(retry_policy=RetryPolicy(max_attempts=3))
 def send_welcome_email(ctx: ExecutionContext[UserData]):
     print(f"Sending email to {ctx.data.email}")
     # Simulate potential failure
     # raise ConnectionError("SMTP Server down")
 ```
 
-### 3. Orchestrate Workflow
+### 3. Orchestrate a Flow
 
-Group tasks into a `Workflow` and execute it using a Runner.
+Group blocks into a `Flow` and execute it using a runner.
 
 ```python
-from taskchain.components.workflow import Workflow
-from taskchain.policies.failure import FailureStrategy
-from taskchain.runtime.runner import SyncRunner
+from vibeblocks import Flow, SyncRunner
+from vibeblocks.policies.failure import FailureStrategy
 
-# Define Workflow
+# Define Flow
 # FailureStrategy.COMPENSATE will trigger undo logic if a step fails
-workflow = Workflow(
-    name="UserOnboarding",
+flow = Flow(
+    name="UserOnboardingFlow",
     steps=[
         validate_email,
         create_account,
@@ -92,33 +91,33 @@ workflow = Workflow(
 
 # Run Workflow
 runner = SyncRunner()
-outcome = runner.run(workflow, ctx)
+outcome = runner.run(flow, ctx)
 
 if outcome.status == "SUCCESS":
-    print(f"Workflow completed! User status: {ctx.data.status}")
+    print(f"Flow completed! User status: {ctx.data.status}")
 else:
-    print(f"Workflow failed: {outcome.errors}")
+    print(f"Flow failed: {outcome.errors}")
     print(f"Final status after compensation: {ctx.data.status}")
 ```
 
-### 4. Grouping Tasks with Process
+### 4. Grouping Blocks with Chain
 
-You can group related tasks into a `Process` to ensure they execute sequentially as a single unit. If any task in the process fails, the entire process fails.
+You can group related blocks into a `Chain` to ensure they execute sequentially as a single unit. If any block in the chain fails, the entire chain fails.
 
 ```python
-from taskchain.components.process import Process
+from vibeblocks import Chain
 
-# Create a process for account setup
-account_setup_process = Process(
+# Create a chain for account setup
+account_setup_chain = Chain(
     name="AccountSetup",
     steps=[validate_email, create_account]
 )
 
-# Use the process in the workflow
-workflow = Workflow(
-    name="UserOnboarding",
+# Use the chain in the flow
+flow = Flow(
+    name="UserOnboardingFlow",
     steps=[
-        account_setup_process,
+        account_setup_chain,
         send_welcome_email
     ],
     strategy=FailureStrategy.COMPENSATE
@@ -127,49 +126,49 @@ workflow = Workflow(
 
 ## Async Support
 
-TaskChain supports async/await natively.
+VibeBlocks supports async/await natively.
 
 ```python
 import asyncio
-from taskchain.runtime.runner import AsyncRunner
+from vibeblocks import AsyncRunner
 
-@task()
-async def async_task(ctx):
+@block()
+async def async_block(ctx):
     await asyncio.sleep(1)
 
 async def main():
-    outcome = await AsyncRunner().run(async_task, ctx)
+    outcome = await AsyncRunner().run(async_block, ctx)
 
 # asyncio.run(main())
 ```
 
 ## Simplified Execution
 
-For simple use cases, you can use the `execute_workflow` utility to run workflows without manually creating the context and runner.
+For simple use cases, you can use `execute_flow` to run a flow without manually creating the context and runner.
 
 ```python
-from taskchain import execute_workflow, Workflow, task
+from vibeblocks import execute_flow, Flow, block
 from dataclasses import dataclass
 
 @dataclass
 class MyData:
     count: int
 
-@task()
+@block()
 def increment(ctx):
     ctx.data.count += 1
 
-# Define your workflow
-workflow = Workflow("SimpleFlow", [increment])
+# Define your flow
+flow = Flow("SimpleFlow", [increment])
 
 # Execute synchronously
 # Automatically creates ExecutionContext(data=MyData(count=1)) and SyncRunner()
 data = MyData(count=1)
-outcome = execute_workflow(workflow, data)
+outcome = execute_flow(flow, data)
 
 print(f"Result: {outcome.context.data.count}") # Result: 2
 
 # Execute asynchronously
 # Automatically creates AsyncRunner()
-# await execute_workflow(workflow, data, async_mode=True)
+# await execute_flow(flow, data, async_mode=True)
 ```

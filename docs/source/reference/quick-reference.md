@@ -2,10 +2,10 @@
 
 ## Core Building Blocks
 
-- `ExecutionContext[T]`: shared workflow state and trace
-- `Task`: atomic executable step
-- `Process`: ordered group of steps
-- `Workflow`: orchestration boundary and failure strategy
+- `ExecutionContext[T]`: shared flow state and trace
+- `Block`: atomic executable step
+- `Chain`: ordered group of steps
+- `Flow`: orchestration boundary and failure strategy
 - `SyncRunner` / `AsyncRunner`: execution engines
 
 ## Failure Strategies
@@ -21,4 +21,3 @@
 - `Event`
 
 Use [API Reference](../api_reference.rst) for complete signatures.
-

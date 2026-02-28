@@ -1,27 +1,28 @@
 """
-Chain component handling linear execution of multiple beats.
+Chain component handling linear execution of multiple blocks.
 """
 
 import inspect
 import time
 from typing import List, Union, Awaitable, TypeVar
 
-from taskchain.core.context import ExecutionContext
-from taskchain.core.outcome import Outcome
-from taskchain.core.executable import Executable
-from taskchain.core.errors import ChainExecutionError
-from taskchain.components.beat import Beat
+from vibeblocks.core.context import ExecutionContext
+from vibeblocks.core.outcome import Outcome
+from vibeblocks.core.executable import Executable
+from vibeblocks.core.errors import ChainExecutionError
 
 T = TypeVar("T")
 
+
 class Chain(Executable[T]):
     """
-    A linear collection of executables (Beats or sub-Chaines).
+    A linear collection of executables (blocks or sub-chains).
     Executes steps sequentially.
     """
+
     def __init__(self, name: str, steps: List[Executable[T]]):
         self.name = name
-        self.steps = steps
+        self.steps = list(steps)
         self._is_async = any(step.is_async for step in self.steps)
 
     @property
@@ -31,7 +32,7 @@ class Chain(Executable[T]):
 
     def execute(self, ctx: ExecutionContext[T]) -> Union[Outcome[T], Awaitable[Outcome[T]]]:
         if self.is_async:
-             return self._execute_async(ctx)
+            return self._execute_async(ctx)
         return self._execute_sync(ctx)
 
     def _execute_sync(self, ctx: ExecutionContext[T]) -> Outcome[T]:
@@ -46,16 +47,18 @@ class Chain(Executable[T]):
                 if inspect.isawaitable(result):
                     if inspect.iscoroutine(result):
                         result.close()
-                    raise ChainExecutionError(f"Step '{getattr(step, 'name', 'Unknown')}' returned a coroutine in a sync chain execution. Use AsyncRunner.")
+                    raise ChainExecutionError(
+                        f"Step '{getattr(step, 'name', 'Unknown')}' returned a coroutine in a sync chain execution. Use AsyncRunner.")
 
                 # Check outcome
                 if isinstance(result, Outcome):
                     if result.status != "SUCCESS":
-                         # Stop execution and bubble up failure
-                         return result
+                        # Stop execution and bubble up failure
+                        return result
             except Exception as e:
                 duration = (time.perf_counter_ns() - start_time) // 1_000_000
-                ctx.log_event("ERROR", self.name, f"Chain Error: {ctx.format_exception(e)}")
+                ctx.log_event("ERROR", self.name,
+                              f"Chain Error: {ctx.format_exception(e)}")
                 # Return Failed Outcome instead of raising
                 return Outcome(status="FAILED", context=ctx, errors=[e], duration_ms=duration)
 
@@ -75,11 +78,12 @@ class Chain(Executable[T]):
                     result = await result
 
                 if isinstance(result, Outcome):
-                     if result.status != "SUCCESS":
-                         return result
+                    if result.status != "SUCCESS":
+                        return result
             except Exception as e:
                 duration = (time.perf_counter_ns() - start_time) // 1_000_000
-                ctx.log_event("ERROR", self.name, f"Chain Error: {ctx.format_exception(e)}")
+                ctx.log_event("ERROR", self.name,
+                              f"Chain Error: {ctx.format_exception(e)}")
                 # Return Failed Outcome instead of raising
                 return Outcome(status="FAILED", context=ctx, errors=[e], duration_ms=duration)
 
@@ -99,7 +103,8 @@ class Chain(Executable[T]):
                 if inspect.isawaitable(res):
                     if inspect.iscoroutine(res):
                         res.close()
-                    raise RuntimeError(f"Step '{getattr(step, 'name', 'Unknown')}' returned an async compensation in a sync chain. Use AsyncRunner.")
+                    raise RuntimeError(
+                        f"Step '{getattr(step, 'name', 'Unknown')}' returned an async compensation in a sync chain. Use AsyncRunner.")
         return None
 
     async def _compensate_async(self, ctx: ExecutionContext[T]) -> None:

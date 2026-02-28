@@ -5,9 +5,9 @@ import sys
 sys.path.insert(0, os.path.abspath('../../src'))
 
 # -- Project information -----------------------------------------------------
-project = 'TaskChain'
-copyright = '2026, TaskChain Team'
-author = 'TaskChain Team'
+project = 'VibeBlocks'
+copyright = '2026, VibeBlocks Team'
+author = 'VibeBlocks Team'
 release = '0.1.0'
 
 # -- General configuration ---------------------------------------------------
@@ -23,7 +23,6 @@ exclude_patterns = []
 
 # -- Options for HTML output -------------------------------------------------
 html_theme = 'sphinx_rtd_theme'
-html_static_path = ['../static']
 
 # -- Napoleon settings -------------------------------------------------------
 napoleon_google_docstring = True

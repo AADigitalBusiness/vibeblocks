@@ -2,7 +2,7 @@
 
 ## Goal
 
-Understand resilient execution behavior in TaskChain.
+Understand resilient execution behavior in VibeBlocks.
 
 ## What You Learn
 
@@ -14,4 +14,3 @@ Understand resilient execution behavior in TaskChain.
 
 - [Core Concepts](../core_concepts.md)
 - [API Reference](../api_reference.rst)
-
