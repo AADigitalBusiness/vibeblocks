@@ -1,5 +1,7 @@
 name = "vibeblocks"
 compatibility_date = "2026-02-28"
+workers_dev = true
+preview_urls = true
 
 [assets]
 directory = "./docs/_build/html"
