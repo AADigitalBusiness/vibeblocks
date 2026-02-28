@@ -6,9 +6,9 @@ VibeBlocks evolves the concept of task orchestration into an AI-ready framework.
 
 ## Key Concepts
 
-1.  **Block:** The atomic unit of execution (formerly Task).
-2.  **Chain:** A linear sequence of Blocks (formerly Process).
-3.  **Flow:** High-level orchestrator with failure strategies (formerly Workflow).
+1.  **Block:** The atomic unit of execution.
+2.  **Chain:** A linear sequence of Blocks.
+3.  **Flow:** High-level orchestrator with failure strategies.
 
 ## Installation
 

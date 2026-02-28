@@ -1,0 +1,5 @@
+name = "vibeblocks"
+compatibility_date = "2026-02-28"
+
+[assets]
+directory = "./docs/_build/html"
