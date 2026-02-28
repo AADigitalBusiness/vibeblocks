@@ -52,7 +52,7 @@ classifiers = [
 
 [project.urls]
 Homepage = "https://github.com/AADigitalBusiness/vibeblocks"
-Documentation = "https://github.com/AADigitalBusiness/vibeblocks#readme"
+Documentation = "https://vibeblocks.aadigitalbusiness.com"
 Issues = "https://github.com/AADigitalBusiness/vibeblocks/issues"
 Repository = "https://github.com/AADigitalBusiness/vibeblocks"
 Source = "https://github.com/AADigitalBusiness/vibeblocks"
