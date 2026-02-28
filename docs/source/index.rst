@@ -11,6 +11,7 @@ TaskChain is a reusable, framework-agnostic Python library designed to organize 
    onboarding/index
    guides/index
    concepts/index
+   evaluation
    reference/index
    glossary
    development/index

@@ -5,7 +5,7 @@ import time
 from typing import Any, Awaitable, Callable, Optional, TypeVar, Union
 
 from taskchain.core.context import ExecutionContext
-from taskchain.core.errors import TaskExecutionError, TaskTimeoutError
+from taskchain.core.errors import BeatExecutionError, BeatTimeoutError
 from taskchain.core.executable import Executable
 from taskchain.core.outcome import Outcome
 from taskchain.policies.retry import RetryPolicy
@@ -13,12 +13,12 @@ from taskchain.utils.inspection import is_async_callable
 
 T = TypeVar("T")
 
-# Shared executor for synchronous task timeouts to avoid overhead and thread leakage.
-# Using a large enough number of workers to handle concurrent tasks.
-_TASK_TIMEOUT_EXECUTOR = concurrent.futures.ThreadPoolExecutor(thread_name_prefix="TaskTimeout")
+# Shared executor for synchronous beat timeouts to avoid overhead and thread leakage.
+# Using a large enough number of workers to handle concurrent beats.
+_TASK_TIMEOUT_EXECUTOR = concurrent.futures.ThreadPoolExecutor(thread_name_prefix="BeatTimeout")
 
 
-class Task(Executable[T]):
+class Beat(Executable[T]):
     """
     Represents an atomic unit of work in a workflow.
     Executes a function with retry logic and supports compensation.
@@ -28,12 +28,14 @@ class Task(Executable[T]):
         self,
         name: str,
         func: Callable[[ExecutionContext[T]], Any],
+        description: Optional[str] = None,
         retry_policy: Optional[RetryPolicy] = None,
         undo: Optional[Callable[[ExecutionContext[T]], Any]] = None,
         timeout: Optional[float] = None,
     ):
         self.name = name
         self.func = func
+        self.description = description or func.__doc__
         self.retry_policy = retry_policy or RetryPolicy(max_attempts=1)
         self.undo = undo
         self.timeout = timeout
@@ -43,7 +45,7 @@ class Task(Executable[T]):
 
     @property
     def is_async(self) -> bool:
-        """Determines if the task function is asynchronous."""
+        """Determines if the beat function is asynchronous."""
         # Optimized: Return pre-calculated value to avoid repeated inspection overhead
         return self._is_async
 
@@ -54,7 +56,7 @@ class Task(Executable[T]):
             return self._execute_sync(ctx)
 
     def _execute_sync(self, ctx: ExecutionContext[T]) -> Outcome[T]:
-        ctx.log_event("INFO", self.name, "Task Started")
+        ctx.log_event("INFO", self.name, "Beat Started")
         start_time = time.time()
         attempt = 1
 
@@ -65,8 +67,8 @@ class Task(Executable[T]):
                         future = _TASK_TIMEOUT_EXECUTOR.submit(self.func, ctx)
                         res = future.result(timeout=self.timeout)
                     except concurrent.futures.TimeoutError:
-                        raise TaskTimeoutError(
-                            f"Task '{self.name}' timed out after {self.timeout}s"
+                        raise BeatTimeoutError(
+                            f"Beat '{self.name}' timed out after {self.timeout}s"
                         ) from None
                 else:
                     res = self.func(ctx)
@@ -76,23 +78,23 @@ class Task(Executable[T]):
                     if inspect.iscoroutine(res):
                         res.close()
                     # We cannot await it here because we are in sync mode.
-                    # We must warn the user that their task logic probably didn't run.
+                    # We must warn the user that their beat logic probably didn't run.
                     # Or raise an error? Raising error is safer.
                     msg = (
-                        f"Task '{self.name}' returned an awaitable (coroutine) but "
+                        f"Beat '{self.name}' returned an awaitable (coroutine) but "
                         "was executed synchronously. Check if the function is "
                         "defined correctly or if AsyncRunner should be used."
                     )
                     raise RuntimeError(msg)
 
                 duration = int((time.time() - start_time) * 1000)
-                ctx.log_event("INFO", self.name, "Task Completed")
+                ctx.log_event("INFO", self.name, "Beat Completed")
                 ctx.completed_steps.add(self.name)
                 return Outcome(status="SUCCESS", context=ctx, errors=[], duration_ms=duration)
 
             except Exception as e:
                 duration = int((time.time() - start_time) * 1000)
-                ctx.log_event("ERROR", self.name, f"Task Failed: {ctx.format_exception(e)}")
+                ctx.log_event("ERROR", self.name, f"Beat Failed: {ctx.format_exception(e)}")
 
                 if self.retry_policy.should_retry(attempt, e):
                     delay = self.retry_policy.calculate_delay(attempt)
@@ -105,15 +107,15 @@ class Task(Executable[T]):
                     attempt += 1
                     continue
                 else:
-                    msg = f"Task '{self.name}' failed after {attempt} attempts"
-                    error = TaskExecutionError(msg)
+                    msg = f"Beat '{self.name}' failed after {attempt} attempts"
+                    error = BeatExecutionError(msg)
                     error.__cause__ = e
                     return Outcome(
                         status="FAILED", context=ctx, errors=[error], duration_ms=duration
                     )
 
     async def _execute_async(self, ctx: ExecutionContext[T]) -> Outcome[T]:
-        ctx.log_event("INFO", self.name, "Task Started (Async)")
+        ctx.log_event("INFO", self.name, "Beat Started (Async)")
         start_time = time.time()
         attempt = 1
 
@@ -125,20 +127,20 @@ class Task(Executable[T]):
                         try:
                             res = await asyncio.wait_for(res, timeout=self.timeout)
                         except asyncio.TimeoutError:
-                            raise TaskTimeoutError(
-                                f"Task '{self.name}' timed out after {self.timeout}s"
+                            raise BeatTimeoutError(
+                                f"Beat '{self.name}' timed out after {self.timeout}s"
                             ) from None
                     else:
                         res = await res
 
                 duration = int((time.time() - start_time) * 1000)
-                ctx.log_event("INFO", self.name, "Task Completed")
+                ctx.log_event("INFO", self.name, "Beat Completed")
                 ctx.completed_steps.add(self.name)
                 return Outcome(status="SUCCESS", context=ctx, errors=[], duration_ms=duration)
 
             except Exception as e:
                 duration = int((time.time() - start_time) * 1000)
-                ctx.log_event("ERROR", self.name, f"Task Failed: {ctx.format_exception(e)}")
+                ctx.log_event("ERROR", self.name, f"Beat Failed: {ctx.format_exception(e)}")
 
                 if self.retry_policy.should_retry(attempt, e):
                     delay = self.retry_policy.calculate_delay(attempt)
@@ -151,8 +153,8 @@ class Task(Executable[T]):
                     attempt += 1
                     continue
                 else:
-                    msg = f"Task '{self.name}' failed after {attempt} attempts"
-                    error = TaskExecutionError(msg)
+                    msg = f"Beat '{self.name}' failed after {attempt} attempts"
+                    error = BeatExecutionError(msg)
                     error.__cause__ = e
                     return Outcome(
                         status="FAILED", context=ctx, errors=[error], duration_ms=duration
@@ -162,7 +164,7 @@ class Task(Executable[T]):
         if self.undo is None:
             return None
 
-        ctx.log_event("INFO", self.name, "Compensating Task")
+        ctx.log_event("INFO", self.name, "Compensating Beat")
 
         if self._is_undo_async:
             return self._compensate_async(ctx)

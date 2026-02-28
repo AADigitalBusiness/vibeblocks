@@ -5,14 +5,15 @@ Decorators for wrapping user functions into library components.
 from functools import update_wrapper
 from typing import Any, Callable, List, Optional, Type, TypeVar
 
-from taskchain.components.task import Task
+from taskchain.components.beat import Beat
 from taskchain.core.context import ExecutionContext
 from taskchain.policies.retry import BackoffStrategy, RetryPolicy
 
 T = TypeVar("T")
 
-def task(
+def beat(
     name: Optional[str] = None,
+    description: Optional[str] = None,
     retry_policy: Optional[RetryPolicy] = None,
     undo: Optional[Callable[[ExecutionContext[Any]], Any]] = None,
     timeout: Optional[float] = None,
@@ -22,14 +23,15 @@ def task(
     backoff: BackoffStrategy = BackoffStrategy.FIXED,
     retry_on: Optional[List[Type[Exception]]] = None,
     give_up_on: Optional[List[Type[Exception]]] = None
-) -> Callable[[Callable[[ExecutionContext[Any]], Any]], Task[Any]]:
+) -> Callable[[Callable[[ExecutionContext[Any]], Any]], Beat[Any]]:
     """
-    Decorator to convert a standard function into a `Task` component.
+    Decorator to convert a standard function into a `Beat` component.
 
     Parameters:
-        name: Name of the task (defaults to function name).
+        name: Name of the beat (defaults to function name).
+        description: Semantic description of the beat for AI/LLM contexts.
         retry_policy: Highly customizable policy object. Overrides quick config args when provided.
-        undo: A callable that reverts changes made by the task.
+        undo: A callable that reverts changes made by the beat.
 
     Quick Retry Config Args (only used if `retry_policy` is NOT provided):
         max_attempts: Maximum total attempts before failing permanently (default: 1).
@@ -38,9 +40,9 @@ def task(
         retry_on: List of Exception classes that trigger retries (default: [Exception]).
         give_up_on: List of Exception classes that explicitly skip retries (default: []).
     """
-    def decorator(func: Callable[[ExecutionContext[Any]], Any]) -> Task[Any]:
+    def decorator(func: Callable[[ExecutionContext[Any]], Any]) -> Beat[Any]:
         nonlocal name, retry_policy
-        task_name = name if name is not None else func.__name__
+        beat_name = name if name is not None else func.__name__
 
         policy = retry_policy
         if policy is None:
@@ -52,15 +54,16 @@ def task(
                 give_up_on=give_up_on or []
             )
 
-        t = Task(
-            name=task_name,
+        t = Beat(
+            name=beat_name,
             func=func,
+            description=description,
             retry_policy=policy,
             undo=undo,
             timeout=timeout
         )
         # Update wrapper to preserve metadata (docstrings, name, etc.)
-        # We avoid updating __dict__ to prevent overwriting Task internal attributes
+        # We avoid updating __dict__ to prevent overwriting Beat internal attributes
         update_wrapper(t, func, updated=())
         return t
     return decorator

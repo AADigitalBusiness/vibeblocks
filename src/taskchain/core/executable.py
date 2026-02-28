@@ -6,7 +6,7 @@ from taskchain.core.outcome import Outcome
 T = TypeVar("T")
 
 class Executable(Generic[T], ABC):
-    """Abstract base class for all executable units in TaskChain."""
+    """Abstract base class for all executable units in VibeFlow."""
 
     @property
     @abstractmethod

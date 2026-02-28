@@ -44,9 +44,6 @@ class ExecutionContext(Generic[T]):
 
     def to_json(self) -> str:
         """Serializes the context to a JSON string."""
-        # Convert completed_steps (set) to list for JSON serialization before calling custom util
-        # Since to_json uses a default encoder, we can also add set handling there,
-        # but the safest local way is:
         serializable_self = {
             "data": self.data,
             "trace": self.trace,
@@ -56,20 +53,31 @@ class ExecutionContext(Generic[T]):
         return serialization.to_json(serializable_self)
 
     @staticmethod
-    def _parse_trace(trace_data: List[Dict[str, Any]]) -> List[Event]:
+    def _parse_trace(trace_data: Any) -> List[Event]:
+        if not isinstance(trace_data, list):
+             raise ValueError("Invalid trace format")
+
         trace_objs = []
         for e in trace_data:
-            ts_str = e["timestamp"]
+            if not isinstance(e, dict):
+                 raise ValueError("Invalid trace event format")
+
+            # Strict validation of required fields
+            required_fields = ["timestamp", "level", "source", "message"]
+            if not all(field in e for field in required_fields):
+                 raise ValueError("Invalid trace event format: missing fields")
+
+            ts_str = e.get("timestamp")
             try:
-                ts = datetime.fromisoformat(ts_str)
+                ts = datetime.fromisoformat(ts_str) if ts_str else datetime.now(timezone.utc)
             except ValueError:
                 ts = datetime.now(timezone.utc)
 
             trace_objs.append(Event(
                 timestamp=ts,
-                level=e["level"],
-                source=e["source"],
-                message=e["message"]
+                level=e.get("level"),
+                source=e.get("source"),
+                message=e.get("message")
             ))
         return trace_objs
 
@@ -125,12 +133,23 @@ class ExecutionContext(Generic[T]):
         """
         parsed = serialization.from_json(raw)
 
+        if not isinstance(parsed, dict):
+            raise ValueError("Invalid JSON structure")
+
         trace_objs = cls._parse_trace(parsed.get("trace", []))
         data_obj = cls._parse_data(parsed.get("data"), data_cls)
+
+        metadata = parsed.get("metadata", {})
+        if not isinstance(metadata, dict):
+             raise ValueError("Invalid metadata format")
+
+        completed_steps = parsed.get("completed_steps", [])
+        if not isinstance(completed_steps, list):
+             raise ValueError("Invalid completed_steps format")
 
         return cls(
             data=data_obj,
             trace=trace_objs,
-            metadata=parsed.get("metadata", {}),
-            completed_steps=set(parsed.get("completed_steps", []))
+            metadata=metadata,
+            completed_steps=set(completed_steps)
         )

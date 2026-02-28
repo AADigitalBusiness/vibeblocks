@@ -2,7 +2,7 @@ import pytest
 import asyncio
 from functools import partial
 from typing import Any
-from taskchain.components.task import Task
+from taskchain.components.beat import Beat
 from taskchain.core.context import ExecutionContext
 from taskchain.runtime.runner import SyncRunner, AsyncRunner
 from taskchain.utils.inspection import is_async_callable
@@ -32,24 +32,24 @@ def test_inspection_util():
     assert not is_async_callable(SyncCallable())
     assert not is_async_callable(partial(sync_fn))
 
-def test_task_async_detection():
+def test_beat_async_detection():
     # No need for async context, just checking property
 
-    t1 = Task("t1", async_fn)
+    t1 = Beat("t1", async_fn)
     assert t1.is_async, "Direct async function should be detected"
 
-    t2 = Task("t2", AsyncCallable())
+    t2 = Beat("t2", AsyncCallable())
     assert t2.is_async, "Async callable object should be detected"
 
-    t3 = Task("t3", partial(async_fn))
+    t3 = Beat("t3", partial(async_fn))
     assert t3.is_async, "Partial async function should be detected"
 
-    t4 = Task("t4", sync_fn)
+    t4 = Beat("t4", sync_fn)
     assert not t4.is_async, "Sync function should be detected as sync"
 
-def test_task_runtime_safety_sync():
+def test_beat_runtime_safety_sync():
     # If a function is sync but returns a coroutine (undetected async)
-    # The task should fail loudly.
+    # The beat should fail loudly.
 
     async def hidden_coro():
         pass
@@ -57,18 +57,18 @@ def test_task_runtime_safety_sync():
     def sneaky_fn(ctx):
         return hidden_coro()
 
-    t = Task("sneaky", sneaky_fn)
+    t = Beat("sneaky", sneaky_fn)
     # Correctly identified as sync function because 'sneaky_fn' is sync def
     assert not t.is_async
 
     ctx = ExecutionContext[dict](data={})
     runner = SyncRunner()
 
-    # Running this sync should raise RuntimeError inside Task because it returns awaitable
-    # The Task catches it and returns FAILED Outcome with TaskExecutionError wrapping RuntimeError
+    # Running this sync should raise RuntimeError inside Beat because it returns awaitable
+    # The Beat catches it and returns FAILED Outcome with BeatExecutionError wrapping RuntimeError
     outcome = runner.run(t, ctx)
 
-    # outcome.errors[0] is TaskExecutionError wrapping RuntimeError
+    # outcome.errors[0] is BeatExecutionError wrapping RuntimeError
     assert outcome.status == "FAILED"
     assert len(outcome.errors) > 0
     # Search error message deep in cause or message

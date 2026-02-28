@@ -1,24 +1,24 @@
-class TaskChainError(Exception):
-    """Base exception for all TaskChain errors."""
+class VibeFlowError(Exception):
+    """Base exception for all VibeFlow errors."""
     pass
 
-class TaskExecutionError(TaskChainError):
-    """Raised when a Task fails to execute."""
+class BeatExecutionError(VibeFlowError):
+    """Raised when a Beat fails to execute."""
     pass
 
 
-class TaskTimeoutError(TaskExecutionError):
-    """Raised when a Task exceeds its allocated execution time."""
+class BeatTimeoutError(BeatExecutionError):
+    """Raised when a Beat exceeds its allocated execution time."""
     pass
 
-class ProcessExecutionError(TaskChainError):
-    """Raised when a Process fails (bubbling up from a Task)."""
+class ChainExecutionError(VibeFlowError):
+    """Raised when a Chain fails (bubbling up from a Beat)."""
     pass
 
-class WorkflowExecutionError(TaskChainError):
-    """Raised when a Workflow fails to orchestrate."""
+class FlowExecutionError(VibeFlowError):
+    """Raised when a Flow fails to orchestrate."""
     pass
 
-class CompensationError(TaskChainError):
+class CompensationError(VibeFlowError):
     """Raised when compensation logic fails."""
     pass
