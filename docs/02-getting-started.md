@@ -51,7 +51,7 @@ from vibeblocks import Flow, execute\_flow
 \# Define the orchestration structure  
 pipeline \= Flow(  
     name="EnrichmentFlow",  
-    steps=\[validate\_input, transform\_data\]  
+    blocks=\[validate\_input, transform\_data\]  
 )
 
 \# Execute the flow with initial data  
@@ -67,7 +67,7 @@ else:
 
 ## **Understanding the Execution Lifecycle**
 
-When you run a flow, VibeBlocks performs several automated steps to ensure reliability:
+When you run a flow, VibeBlocks performs several automated blocks to ensure reliability:
 
 sequenceDiagram  
     participant U as User Code  
@@ -87,7 +87,7 @@ sequenceDiagram
     end  
     R-\>\>U: Return Outcome Object
 
-## **Next Steps**
+## **Next blocks**
 
 Now that you have executed your first flow, you are ready to explore the core building blocks that allow for high-end AI orchestration:
 

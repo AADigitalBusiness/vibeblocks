@@ -35,15 +35,15 @@ When a block fails permanently (exceeds retries), the Flow orchestrator decides 
 | :---- | :---- | :---- |
 | ABORT | Stops execution immediately. | Critical data integrity where no undo is possible. |
 | CONTINUE | Logs the error and moves to the next block. | Non-critical tasks (e.g., optional tracking). |
-| COMPENSATE | Stops and triggers undo logic for all successful steps. | Financial transactions or multi-step service updates. |
+| COMPENSATE | Stops and triggers undo logic for all successful blocks. | Financial transactions or multi-step service updates. |
 
 ## **3\. The Compensation (Undo) Pattern**
 
-The COMPENSATE strategy implements the **Saga Pattern**. If a step fails, VibeBlocks automatically executes the undo handlers of all *previously completed* steps in reverse order (LIFO).
+The COMPENSATE strategy implements the **Saga Pattern**. If a step fails, VibeBlocks automatically executes the undo handlers of all *previously completed* blocks in reverse order (LIFO).
 
 ### **How it Works**
 
-1. **Completion Tracking:** VibeBlocks maintains a completed\_steps set in the ExecutionContext.  
+1. **Completion Tracking:** VibeBlocks maintains a completed\_blocks set in the ExecutionContext.  
 2. **Reverse Trigger:** Upon failure, the orchestrator walks backward through the execution history.  
 3. **Execution:** Only blocks that actually finished successfully have their undo functions called.
 

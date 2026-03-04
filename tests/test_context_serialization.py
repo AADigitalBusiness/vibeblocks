@@ -101,9 +101,9 @@ def test_from_json_trace_reconstruction():
     assert event.timestamp == datetime.fromisoformat(ts_str)
 
 
-def test_from_json_completed_steps():
-    steps = ["step1", "step2"]
-    json_str = json.dumps({"data": {}, "completed_steps": steps})
+def test_from_json_completed_blocks():
+    blocks = ["step1", "step2"]
+    json_str = json.dumps({"data": {}, "completed_blocks": blocks})
 
     ctx = ExecutionContext.from_json(json_str)
-    assert ctx.completed_steps == {"step1", "step2"}
+    assert ctx.completed_blocks == {"step1", "step2"}

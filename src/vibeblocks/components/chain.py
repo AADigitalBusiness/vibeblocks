@@ -17,13 +17,13 @@ T = TypeVar("T")
 class Chain(Executable[T]):
     """
     A linear collection of executables (blocks or sub-chains).
-    Executes steps sequentially.
+    Executes blocks sequentially.
     """
 
-    def __init__(self, name: str, steps: List[Executable[T]]):
+    def __init__(self, name: str, blocks: List[Executable[T]]):
         self.name = name
-        self.steps = list(steps)
-        self._is_async = any(step.is_async for step in self.steps)
+        self.blocks = list(blocks)
+        self._is_async = any(step.is_async for step in self.blocks)
 
     @property
     def is_async(self) -> bool:
@@ -39,7 +39,7 @@ class Chain(Executable[T]):
         start_time = time.perf_counter_ns()
         ctx.log_event("INFO", self.name, "Chain Started")
 
-        for step in self.steps:
+        for step in self.blocks:
             try:
                 result = step.execute(ctx)
 
@@ -64,14 +64,14 @@ class Chain(Executable[T]):
 
         duration = (time.perf_counter_ns() - start_time) // 1_000_000
         ctx.log_event("INFO", self.name, "Chain Completed")
-        ctx.completed_steps.add(self.name)
+        ctx.completed_blocks.add(self.name)
         return Outcome(status="SUCCESS", context=ctx, errors=[], duration_ms=duration)
 
     async def _execute_async(self, ctx: ExecutionContext[T]) -> Outcome[T]:
         start_time = time.perf_counter_ns()
         ctx.log_event("INFO", self.name, "Chain Started (Async)")
 
-        for step in self.steps:
+        for step in self.blocks:
             try:
                 result = step.execute(ctx)
                 if inspect.isawaitable(result):
@@ -89,7 +89,7 @@ class Chain(Executable[T]):
 
         duration = (time.perf_counter_ns() - start_time) // 1_000_000
         ctx.log_event("INFO", self.name, "Chain Completed")
-        ctx.completed_steps.add(self.name)
+        ctx.completed_blocks.add(self.name)
         return Outcome(status="SUCCESS", context=ctx, errors=[], duration_ms=duration)
 
     def compensate(self, ctx: ExecutionContext[T]) -> Union[None, Awaitable[None]]:
@@ -97,7 +97,7 @@ class Chain(Executable[T]):
             return self._compensate_async(ctx)
 
         ctx.log_event("INFO", self.name, "Compensating Chain")
-        for step in reversed(self.steps):
+        for step in reversed(self.blocks):
             if self._did_step_succeed(ctx, step):
                 res = step.compensate(ctx)
                 if inspect.isawaitable(res):
@@ -109,7 +109,7 @@ class Chain(Executable[T]):
 
     async def _compensate_async(self, ctx: ExecutionContext[T]) -> None:
         ctx.log_event("INFO", self.name, "Compensating Chain (Async)")
-        for step in reversed(self.steps):
+        for step in reversed(self.blocks):
             if self._did_step_succeed(ctx, step):
                 res = step.compensate(ctx)
                 if inspect.isawaitable(res):
@@ -121,4 +121,4 @@ class Chain(Executable[T]):
         if not name:
             return False
 
-        return name in ctx.completed_steps
+        return name in ctx.completed_blocks

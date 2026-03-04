@@ -91,7 +91,7 @@ class Block(Executable[T]):
 
                 duration = int((time.time() - start_time) * 1000)
                 ctx.log_event("INFO", self.name, "Block Completed")
-                ctx.completed_steps.add(self.name)
+                ctx.completed_blocks.add(self.name)
                 return Outcome(status="SUCCESS", context=ctx, errors=[], duration_ms=duration)
 
             except Exception as e:
@@ -138,7 +138,7 @@ class Block(Executable[T]):
 
                 duration = int((time.time() - start_time) * 1000)
                 ctx.log_event("INFO", self.name, "Block Completed")
-                ctx.completed_steps.add(self.name)
+                ctx.completed_blocks.add(self.name)
                 return Outcome(status="SUCCESS", context=ctx, errors=[], duration_ms=duration)
 
             except Exception as e:

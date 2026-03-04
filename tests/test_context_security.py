@@ -28,10 +28,10 @@ def test_from_json_invalid_metadata_type():
         ExecutionContext.from_json(json_str)
 
 
-def test_from_json_invalid_completed_steps_type():
-    """Test deserialization with invalid completed_steps type."""
-    json_str = json.dumps({"completed_steps": "not_a_list"})
-    with pytest.raises(ValueError, match="Invalid completed_steps format"):
+def test_from_json_invalid_completed_blocks_type():
+    """Test deserialization with invalid completed_blocks type."""
+    json_str = json.dumps({"completed_blocks": "not_a_list"})
+    with pytest.raises(ValueError, match="Invalid completed_blocks format"):
         ExecutionContext.from_json(json_str)
 
 

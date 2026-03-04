@@ -65,7 +65,7 @@ from vibeblocks.vibeblocks import VibeBlocks
 # JSON definition (could come from an LLM)
 flow_request = {
     "name": "DynamicETL",
-    "steps": ["extract", "transform", "load"],
+    "blocks": ["extract", "transform", "load"],
     "strategy": "ABORT"
 }
 

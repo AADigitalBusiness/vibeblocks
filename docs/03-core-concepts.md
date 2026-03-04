@@ -28,10 +28,10 @@ classDiagram
         \+retry\_policy  
     }  
     class Chain {  
-        \+steps: List\[Executable\]  
+        \+blocks: List\[Executable\]  
     }  
     class Flow {  
-        \+steps: List\[Executable\]  
+        \+blocks: List\[Executable\]  
         \+strategy: FailureStrategy  
     }
 
@@ -51,7 +51,7 @@ The Block is the atomic unit of work. It wraps a single Python function and enri
 
 ### **Chain (The Composite)**
 
-A Chain is an ordered sequence of Executables. It treats a group of steps as a single logical unit. If any step in the chain fails, the chain fails immediately, bubbling the error up to the orchestrator.
+A Chain is an ordered sequence of Executables. It treats a group of blocks as a single logical unit. If any step in the chain fails, the chain fails immediately, bubbling the error up to the orchestrator.
 
 ### **Flow (The Orchestrator)**
 

@@ -17,22 +17,22 @@ T = TypeVar("T")
 
 class Flow(Executable[T]):
     """
-    The top-level orchestrator that manages a sequence of steps (Blocks or Chaines)
+    The top-level orchestrator that manages a sequence of blocks (Blocks or Chaines)
     and handles failures according to a strategy.
     """
 
     def __init__(
         self,
         name: str,
-        steps: List[Executable[T]],
+        blocks: List[Executable[T]],
         description: Optional[str] = None,
         strategy: FailureStrategy = FailureStrategy.ABORT
     ):
         self.name = name
-        self.steps = list(steps)
+        self.blocks = list(blocks)
         self.description = description
         self.strategy = strategy
-        self._is_async = any(step.is_async for step in self.steps)
+        self._is_async = any(step.is_async for step in self.blocks)
 
     @property
     def is_async(self) -> bool:
@@ -43,19 +43,19 @@ class Flow(Executable[T]):
         """
         Returns a dictionary representation of the flow structure, including semantic descriptions.
         """
-        steps_info = []
-        for step in self.steps:
+        blocks_info = []
+        for step in self.blocks:
             step_data = {
                 "name": getattr(step, "name", "Unknown"),
                 "type": step.__class__.__name__,
                 "description": getattr(step, "description", None) or step.__doc__ or "No description provided."
             }
-            steps_info.append(step_data)
+            blocks_info.append(step_data)
 
         return {
             "name": self.name,
             "description": self.description or "No description provided.",
-            "steps": steps_info,
+            "blocks": blocks_info,
             "strategy": self.strategy.name
         }
 
@@ -69,7 +69,7 @@ class Flow(Executable[T]):
         ctx.log_event("INFO", self.name, "Flow Started")
         collected_errors = []
 
-        for step in self.steps:
+        for step in self.blocks:
             try:
                 result = step.execute(ctx)
 
@@ -132,7 +132,7 @@ class Flow(Executable[T]):
         ctx.log_event("INFO", self.name, "Flow Started (Async)")
         collected_errors = []
 
-        for step in self.steps:
+        for step in self.blocks:
             try:
                 result = step.execute(ctx)
                 if inspect.isawaitable(result):
@@ -194,7 +194,7 @@ class Flow(Executable[T]):
             return self._compensate_async(ctx)
 
         ctx.log_event("INFO", self.name, "Compensating Flow")
-        for step in reversed(self.steps):
+        for step in reversed(self.blocks):
             if self._did_step_succeed(ctx, step):
                 res = step.compensate(ctx)
                 self._ensure_not_awaitable(
@@ -204,7 +204,7 @@ class Flow(Executable[T]):
 
     async def _compensate_async(self, ctx: ExecutionContext[T]) -> None:
         ctx.log_event("INFO", self.name, "Compensating Flow (Async)")
-        for step in reversed(self.steps):
+        for step in reversed(self.blocks):
             if self._did_step_succeed(ctx, step):
                 res = step.compensate(ctx)
                 if inspect.isawaitable(res):
@@ -216,7 +216,7 @@ class Flow(Executable[T]):
         if not name:
             return False
 
-        return name in ctx.completed_steps
+        return name in ctx.completed_blocks
 
     def _ensure_not_awaitable(self, result, step_name: str, context: str) -> None:
         if inspect.isawaitable(result):
@@ -272,7 +272,7 @@ class Flow(Executable[T]):
                       f"Flow Completed with status {final_status}")
 
         if final_status == "SUCCESS":
-            ctx.completed_steps.add(self.name)
+            ctx.completed_blocks.add(self.name)
 
         duration = (time.perf_counter_ns() - start_time) // 1_000_000
         return Outcome(final_status, ctx, collected_errors, duration_ms=duration)

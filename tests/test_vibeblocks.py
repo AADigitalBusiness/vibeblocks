@@ -28,9 +28,9 @@ def test_flow_manifest():
 
     assert manifest["name"] == "TestFlow"
     assert manifest["description"] == "A test flow"
-    assert len(manifest["steps"]) == 2
-    assert manifest["steps"][0]["name"] == "b1"
-    assert manifest["steps"][0]["description"] == "First block"
+    assert len(manifest["blocks"]) == 2
+    assert manifest["blocks"][0]["name"] == "b1"
+    assert manifest["blocks"][0]["description"] == "First block"
 
 
 def test_schema_generation():
@@ -58,7 +58,7 @@ def test_vibeblocks_dynamic_execution():
 
     json_req = {
         "name": "DynamicAdd",
-        "steps": ["add_one", "add_one"],
+        "blocks": ["add_one", "add_one"],
         "strategy": "ABORT"
     }
 

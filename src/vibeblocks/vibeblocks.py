@@ -27,7 +27,7 @@ class VibeBlocks:
 
         Args:
             json_request: A dictionary defining the flow with keys like
-                ``name``, ``steps``, and ``strategy``.
+                ``name``, ``blocks``, and ``strategy``.
             initial_data: The data object to initialize ExecutionContext with.
             available_blocks: A dictionary mapping step names (strings) to Block instances.
 
@@ -36,7 +36,7 @@ class VibeBlocks:
         """
 
         flow_name = json_request.get("name", "DynamicFlow")
-        step_names = json_request.get("steps", [])
+        step_names = json_request.get("blocks", [])
         strategy_str = json_request.get("strategy", "ABORT").upper()
 
         # Validate Strategy
@@ -46,15 +46,15 @@ class VibeBlocks:
             strategy = FailureStrategy.ABORT
 
         # Resolve Blocks
-        flow_steps = []
+        flow_blocks = []
         for name in step_names:
             if name not in available_blocks:
                 raise ValueError(
                     f"Block '{name}' not found in available_blocks.")
-            flow_steps.append(available_blocks[name])
+            flow_blocks.append(available_blocks[name])
 
         # Construct Flow
-        flow = Flow(name=flow_name, steps=flow_steps, strategy=strategy)
+        flow = Flow(name=flow_name, blocks=flow_blocks, strategy=strategy)
 
         # Execute
         # We assume sync execution by default unless the flow is async,

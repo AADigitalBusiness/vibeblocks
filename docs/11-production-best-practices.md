@@ -29,7 +29,7 @@ The "Zero-Gravity" nature of VibeBlocks makes it fast, but improper context mana
 The COMPENSATE strategy is only as good as your undo logic.
 
 * **Idempotency is Mandatory:** Compensation handlers may be triggered multiple times in edge cases (e.g., a network failure during the undo process). Every undo function must be safe to run more than once.  
-* **Check Completed Steps:** Always rely on ctx.completed\_steps to decide if an undo operation is necessary. VibeBlocks handles this internally, but your custom orchestration logic should respect this set.
+* **Check Completed blocks:** Always rely on ctx.completed\_blocks to decide if an undo operation is necessary. VibeBlocks handles this internally, but your custom orchestration logic should respect this set.
 
 ## **5\. Production Checklist**
 

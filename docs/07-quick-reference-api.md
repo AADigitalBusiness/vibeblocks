@@ -16,14 +16,14 @@ Atomic unit of work wrapping a function.
 
 Linear sequence of executables.
 
-* **Constructor:** Chain(name, steps: List\[Executable\])  
-* **Behavior:** Executes steps sequentially. Fails if any step fails.
+* **Constructor:** Chain(name, blocks: List\[Executable\])  
+* **Behavior:** Executes blocks sequentially. Fails if any step fails.
 
 ### **Flow**
 
 Top-level orchestrator with error handling strategies.
 
-* **Constructor:** Flow(name, steps, description=None, strategy=FailureStrategy.ABORT)  
+* **Constructor:** Flow(name, blocks, description=None, strategy=FailureStrategy.ABORT)  
 * **Methods:** get\_manifest() \-\> Dict (Used for AI/LLM integration).
 
 ## **2\. Execution State**
@@ -36,7 +36,7 @@ The central state container.
   * data: T: User-defined state object.  
   * trace: List\[Event\]: Chronological execution log.  
   * metadata: Dict: Custom key-value pairs.  
-  * completed\_steps: Set\[str\]: Internal set for tracking successful steps.  
+  * completed\_blocks: Set\[str\]: Internal set for tracking successful blocks.  
 * **Key Methods:**  
   * log\_event(level, source, message): Add entry to trace.  
   * to\_json() \-\> str: Serialize context to JSON.  

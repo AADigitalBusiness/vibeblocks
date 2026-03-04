@@ -20,7 +20,7 @@ flow \= Flow("InventoryCheck", \[query\_inventory, notify\_manager\])
 manifest \= flow.get\_manifest()  
 \# {  
 \#   "name": "InventoryCheck",  
-\#   "steps": \[{"name": "query\_inventory", "description": "..."}, ...\]  
+\#   "blocks": \[{"name": "query\_inventory", "description": "..."}, ...\]  
 \# }
 
 ## **2\. JSON Schema Generation**
@@ -44,7 +44,7 @@ sequenceDiagram
     participant S as System Tools
 
     LLM-\>\>LLM: Analyzes User Request  
-    LLM-\>\>VB: Sends JSON Plan (steps, strategy)  
+    LLM-\>\>VB: Sends JSON Plan (blocks, strategy)  
     Note over VB: Resolves blocks from Registry  
     VB-\>\>S: Executes Step 1  
     VB-\>\>S: Executes Step 2  
@@ -58,7 +58,7 @@ from vibeblocks.vibeblocks import VibeBlocks
 \# 1\. Received from LLM  
 ai\_plan \= {  
     "name": "RefundAndNotify",  
-    "steps": \["process\_refund", "send\_confirmation"\],  
+    "blocks": \["process\_refund", "send\_confirmation"\],  
     "strategy": "COMPENSATE"  
 }
 

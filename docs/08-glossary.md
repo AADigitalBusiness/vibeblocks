@@ -20,7 +20,7 @@ A "Leaf" executable that wraps a single Python function. It is the fundamental b
 
 ### **Chain**
 
-A "Composite" executable that represents a linear, ordered sequence of steps. It handles sequential logic and bubbles up failures to the parent orchestrator.
+A "Composite" executable that represents a linear, ordered sequence of blocks. It handles sequential logic and bubbles up failures to the parent orchestrator.
 
 ### **Compensation (Undo Logic)**
 

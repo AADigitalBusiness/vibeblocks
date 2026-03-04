@@ -1,5 +1,6 @@
 from enum import Enum, auto
 
+
 class FailureStrategy(Enum):
     """
     Defines the behavior when a workflow or process encounters an error.
@@ -11,4 +12,4 @@ class FailureStrategy(Enum):
     """Log the error and proceed to the next step. Context may be partial."""
 
     COMPENSATE = auto()
-    """Stop execution and run compensation logic (undo) on successful steps in reverse order."""
+    """Stop execution and run compensation logic (undo) on successful blocks in reverse order."""

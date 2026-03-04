@@ -28,7 +28,7 @@ class ExecutionContext(Generic[T]):
     data: T
     trace: List[Event] = field(default_factory=list)
     metadata: Dict[str, Any] = field(default_factory=dict)
-    completed_steps: Set[str] = field(default_factory=set)
+    completed_blocks: Set[str] = field(default_factory=set)
     exception_sanitizer: Callable[[Exception], str] = field(
         default=str, repr=False, compare=False)
 
@@ -51,7 +51,7 @@ class ExecutionContext(Generic[T]):
             "data": self.data,
             "trace": self.trace,
             "metadata": self.metadata,
-            "completed_steps": list(self.completed_steps)
+            "completed_blocks": list(self.completed_blocks)
         }
         return serialization.to_json(serializable_self)
 
@@ -151,13 +151,13 @@ class ExecutionContext(Generic[T]):
         if not isinstance(metadata, dict):
             raise ValueError("Invalid metadata format")
 
-        completed_steps = parsed.get("completed_steps", [])
-        if not isinstance(completed_steps, list):
-            raise ValueError("Invalid completed_steps format")
+        completed_blocks = parsed.get("completed_blocks", [])
+        if not isinstance(completed_blocks, list):
+            raise ValueError("Invalid completed_blocks format")
 
         return cls(
             data=data_obj,
             trace=trace_objs,
             metadata=metadata,
-            completed_steps=set(completed_steps)
+            completed_blocks=set(completed_blocks)
         )

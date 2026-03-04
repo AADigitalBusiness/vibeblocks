@@ -9,7 +9,7 @@ At its core, VibeBlocks adheres to a **"Zero-Gravity" Philosophy**: it carries n
 While Large Language Models (LLMs) are exceptional at reasoning and planning, they are inherently non-deterministic. Building production systems around them requires a layer that can:
 
 1. Enforce strict execution boundaries.  
-2. Manage complex state transitions across atomic steps.  
+2. Manage complex state transitions across atomic blocks.  
 3. Provide robust failure recovery and compensation (rollback) logic.
 
 VibeBlocks solves this by providing a high-level orchestration layer that treats business logic as a graph of **Executable Units**.
