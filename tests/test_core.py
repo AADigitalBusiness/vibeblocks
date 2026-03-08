@@ -35,3 +35,18 @@ def test_context_log_event():
     assert len(ctx.trace) == 1
     assert ctx.trace[0].level == "ERROR"
     assert ctx.trace[0].source == "src"
+
+
+def test_context_format_exception_default():
+    ctx = ExecutionContext[dict](data={})
+    e = ValueError("test error")
+    assert ctx.format_exception(e) == "test error"
+
+
+def test_context_format_exception_custom():
+    def custom_sanitizer(e: Exception) -> str:
+        return f"Sanitized: {str(e)}"
+
+    ctx = ExecutionContext[dict](data={}, exception_sanitizer=custom_sanitizer)
+    e = ValueError("test error")
+    assert ctx.format_exception(e) == "Sanitized: test error"
