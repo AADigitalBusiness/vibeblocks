@@ -66,8 +66,7 @@ class ExecutionContext(Generic[T]):
                 raise ValueError("Invalid trace event format")
 
             # Strict validation of required fields
-            required_fields = ["timestamp", "level", "source", "message"]
-            if not all(field in e for field in required_fields):
+            if not ("timestamp" in e and "level" in e and "source" in e and "message" in e):
                 raise ValueError("Invalid trace event format: missing fields")
 
             ts_str = e.get("timestamp")
