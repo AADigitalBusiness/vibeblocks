@@ -6,7 +6,17 @@ Deploying **VibeBlocks** in a production environment requires moving beyond basi
 
 Since the ExecutionContext is designed to be fully serializable, it often crosses trust boundaries (e.g., being stored in a database or sent to a frontend).
 
-* **Sanitize Exceptions:** By default, VibeBlocks logs full exception strings. In production, ensure you use the exception\_sanitizer hook in the ExecutionContext to strip sensitive information (like DB connection strings or internal paths) before logging to the trace.  
+* **Sanitize Exceptions:** By default, VibeBlocks logs full exception strings. In production, pass a custom `exception_sanitizer` callable when creating the `ExecutionContext` to strip sensitive information (such as DB connection strings or internal paths) before it is written to the trace.
+
+\# Provide a sanitizer that removes internal details  
+def sanitize(e: Exception) \-\> str:  
+    return f"\[{type(e).\_\_name\_\_}\] An internal error occurred."
+
+ctx \= ExecutionContext(data\=my\_data, exception\_sanitizer\=sanitize)
+
+\# Or use execute\_flow and pass a pre-built context  
+runner \= SyncRunner()  
+outcome \= runner.run(flow, ctx)  
 * **Avoid Storing Secrets in Context:** Never store API keys, passwords, or raw PII (Personally Identifiable Information) inside the ctx.data object. Use references (IDs) and fetch secrets within the Block's execution logic using a secure vault.  
 * **JSON Deserialization Safety:** When using ExecutionContext.from\_json(), always provide a data\_cls to ensure the incoming data is validated against a strict schema (Dataclass or Pydantic) to prevent injection attacks via arbitrary dictionary keys.
 

@@ -27,6 +27,23 @@ custom\_policy \= RetryPolicy(
 def unstable\_api\_call(ctx):  
     ...
 
+### **Safety Limits**
+
+To prevent accidental resource exhaustion in production, `RetryPolicy` enforces hard caps during initialization:
+
+| Field | Limit | Behavior on Violation |
+| :---- | :---- | :---- |
+| `max_attempts` | `MAX_ATTEMPTS_LIMIT` = 100 | Capped at 100; negative values set to 0. |
+| `max_delay` | `MAX_DELAY_LIMIT` = 3600 s | Capped at 1 hour; negative values set to 0.0. |
+| `delay` | — | Negative values clamped to 0.0. |
+
+These limits are applied silently via `__post_init__`, so no exception is raised:
+
+\# Both of these are silently capped at the safety limits  
+policy \= RetryPolicy(max\_attempts=9999, max\_delay=86400.0)  
+print(policy.max\_attempts)  \# 100  
+print(policy.max\_delay)     \# 3600.0
+
 ## **2\. Global Resilience: Failure Strategies**
 
 When a block fails permanently (exceeds retries), the Flow orchestrator decides the fate of the entire process based on its FailureStrategy.

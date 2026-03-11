@@ -16,13 +16,14 @@ Welcome to the official documentation for **VibeBlocks**, the framework-agnostic
 
 ## **3\. Reference & Evaluation**
 
-* [**07\. API Quick Reference**](https://www.google.com/search?q=07-quick-reference-api.md): High-density lookup for signatures, decorators, and return types.  
+* [**07\. API Quick Reference**](https://www.google.com/search?q=07-quick-reference-api.md): High-density lookup for signatures, decorators, error hierarchy, and return types.  
 * [**08\. Glossary**](https://www.google.com/search?q=08-glossary.md): Standardized engineering vocabulary for VibeBlocks and AI orchestration.  
 * [**09\. Strategic Evaluation**](https://www.google.com/search?q=09-strategic-evaluation.md): Objective scoring and market comparison for technical decision-makers.
 
 ## **4\. Community & Contribution**
 
-* [**10\. Contributor Guide**](https://www.google.com/search?q=10-contributor-guide.md): Quality gates, architectural constraints, and workflows for core developers.
+* [**10\. Contributor Guide**](https://www.google.com/search?q=10-contributor-guide.md): Quality gates, architectural constraints, and workflows for core developers.  
+* [**11\. Production Best Practices**](https://www.google.com/search?q=11-production-best-practices.md): Security, observability, and performance guidelines for enterprise deployments.
 
 ## **Strategic Entry Points**
 

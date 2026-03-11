@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.3] - 2026-03-11
+
+### Added
+- `exception_sanitizer` callback field on `ExecutionContext` and `format_exception()` helper method, enabling custom sanitization of exception messages before they are written to the execution trace.
+- Named error hierarchy: `VibeBlocksError` (base), `BlockExecutionError`, `BlockTimeoutError` (timeout-specific), and `ChainExecutionError` — allowing callers to catch failures at any granularity.
+- `RetryPolicy` now enforces hard safety limits via `__post_init__`: `max_attempts` is capped at `MAX_ATTEMPTS_LIMIT` (100) and `max_delay` is capped at `MAX_DELAY_LIMIT` (3600 s). Negative values for `max_attempts`, `delay`, and `max_delay` are automatically clamped to zero.
+- `is_async_callable()` utility (in `vibeblocks.utils.inspection`) now correctly detects async callables wrapped in `functools.partial` and class instances with an `async def __call__` method.
+- Shared `_TASK_TIMEOUT_EXECUTOR` (`ThreadPoolExecutor`) for synchronous block timeouts, reducing thread-creation overhead when many timed blocks run concurrently in the same process.
+
+### Changed
+- `ExecutionContext.from_json()` now raises `ValueError` with descriptive messages for malformed input (invalid top-level structure, trace format, metadata type, or `completed_blocks` type), replacing silent failures with explicit errors.
+
 ## [0.1.2] - 2026-03-04
 
 ### Added

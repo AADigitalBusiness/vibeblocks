@@ -39,7 +39,7 @@ Reliability requires strict control over execution time. VibeBlocks implements t
 
 ### **Synchronous Timeouts**
 
-Synchronous blocks utilize a dedicated ThreadPoolExecutor. This prevents a "hung" synchronous task from blocking the entire application state.
+Synchronous blocks utilize a shared `ThreadPoolExecutor` (`_TASK_TIMEOUT_EXECUTOR`) that is reused across all timed blocks in the same process. This avoids the overhead of spawning new threads for each timeout and prevents thread leakage when many blocks run concurrently.
 
 @block(timeout=2.0)  
 def heavy\_computation(ctx):  
