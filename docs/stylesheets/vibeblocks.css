@@ -1,0 +1,259 @@
+/* ============================================================
+   VibeBlocks Docs — Custom CSS
+   Design System: "Zero-Gravity / Clinical Architect"
+   Accent: Signal Green (#00FF41)  |  Surface: #FFFFFF
+   Code BG: #0B0E14  |  Font: Inter + JetBrains Mono
+   ============================================================ */
+
+/* --- Google Fonts --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+/* --- Material Color Token Overrides --- */
+:root,
+[data-md-color-scheme="default"],
+[data-md-color-scheme="slate"] {
+  /* Core Design Tokens */
+  --md-primary-fg-color:        #00FC40; /* Accurate Signal Green */
+  --md-primary-fg-color--light: #00ec3b;
+  --md-primary-fg-color--dark:  #006b15;
+  --md-primary-bg-color:        #0b0e14;
+  --md-accent-fg-color:         #00FC40;
+  --md-typeset-a-color:         #006b15;
+  
+  /* Force Dark Code Mode */
+  --md-code-bg-color:           #0b0e14 !important;
+  --md-code-fg-color:           #f8fafc !important;
+}
+
+/* Specificity override for Material's palette-based code colors */
+[data-md-color-scheme] .md-typeset code,
+[data-md-color-scheme] .md-typeset pre,
+[data-md-color-scheme] .md-typeset pre > code,
+[data-md-color-scheme] .highlight code {
+  color: #f8fafc !important;
+  background-color: transparent !important; /* Ensure inherited bg doesn't conflict */
+}
+
+/* --- Base Typography --- */
+body,
+.md-typeset {
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.md-typeset code,
+.md-typeset pre,
+.highlight code {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 0.85em;
+}
+
+/* --- Header / Navbar --- */
+.md-header {
+  background-color: #0b0e14;
+  border-bottom: 1px solid #00FF41;
+  color: #f0f0f0;
+}
+
+/* Force all header text/icons to white */
+.md-header *,
+.md-header .md-header__title,
+.md-header .md-header__button,
+.md-header .md-icon,
+.md-header__topic,
+.md-header__ellipsis {
+  color: #f0f0f0 !important;
+  fill: #f0f0f0 !important;
+}
+
+/* Signal Green for active nav tabs */
+.md-tabs__link--active,
+.md-tabs__link:hover {
+  color: #00FC40 !important;
+  opacity: 1 !important;
+}
+
+/* Inactive tabs: White with 70% opacity for clear distinction on black */
+.md-tabs__link {
+  color: rgba(255, 255, 255, 0.7) !important;
+  opacity: 1 !important;
+  font-weight: 500;
+}
+
+.md-tabs {
+  background-color: #0b0e14;
+}
+
+/* --- Headings --- */
+.md-typeset h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: #111827;
+}
+
+.md-typeset h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #111827;
+  border-bottom: 1px solid #acadad26;
+  padding-bottom: 0.5rem;
+}
+
+/* --- Links --- */
+.md-typeset a {
+  color: #006b15;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s;
+}
+
+.md-typeset a:hover {
+  border-bottom-color: #00FF41;
+  color: #006b15;
+}
+
+/* --- Code Blocks (Unifying to Zero-Gravity Deep Dark) --- */
+.md-typeset pre,
+.highlight,
+.md-typeset .highlight,
+html [data-md-color-scheme] .highlight {
+  background-color: #0b0e14 !important;
+  border-radius: 0 !important;
+  border: 1px solid rgba(172,173,173,0.15) !important;
+}
+
+/* Base text color for code content */
+.md-typeset code,
+.md-typeset pre,
+.md-typeset pre > code,
+.highlight code {
+  color: #f8fafc !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Precise Syntax Highlighting (High Specificity) */
+[data-md-color-scheme] .highlight .go { color: #f8fafc !important; }  /* Generic output */
+[data-md-color-scheme] .highlight .gp { color: #00FC40 !important; }  /* Prompt $ */
+[data-md-color-scheme] .highlight .c1 { color: #6a7282 !important; }  /* Comments - clinical grey */
+[data-md-color-scheme] .highlight .k  { color: #00FC40 !important; font-weight: 600; }  /* Keywords - Signal Green */
+[data-md-color-scheme] .highlight .s2 { color: #a5f3bc !important; }  /* Strings - Pale Green */
+[data-md-color-scheme] .highlight .nf { color: #ffffff !important; font-weight: 500; }  /* Functions - Stark White */
+[data-md-color-scheme] .highlight .nb { color: #00FC40 !important; }  /* Built-ins */
+[data-md-color-scheme] .highlight .nn { color: #f8fafc !important; }  /* Name/Namespace */
+[data-md-color-scheme] .highlight .p  { color: #cbd5e1 !important; }  /* Punctuation */
+[data-md-color-scheme] .highlight .n  { color: #f1f5f9 !important; }  /* Names */
+
+/* Inline code adjustment */
+.md-typeset code:not(pre code) {
+  background-color: #f1f5f9;
+  color: #0f172a !important;
+  border-radius: 0;
+  padding: 0.1em 0.35em;
+  border: 1px solid #e2e8f0;
+}
+
+/* --- Buttons --- */
+.md-typeset .md-button {
+  border-radius: 0;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.01em;
+  padding: 0.65em 1.5em;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.md-typeset .md-button--primary {
+  background-color: #00FF41;
+  border-color: #00FF41;
+  color: #0b0e14;
+}
+
+.md-typeset .md-button--primary:hover {
+  background-color: #00ec3b;
+  border-color: #00ec3b;
+  color: #0b0e14;
+}
+
+.md-typeset .md-button:not(.md-button--primary) {
+  border-color: #acadad;
+  color: #111827;
+}
+
+.md-typeset .md-button:not(.md-button--primary):hover {
+  border-color: #00FF41;
+  color: #006b15;
+  background-color: transparent;
+}
+
+/* --- Grid Cards --- */
+.md-typeset .grid.cards > ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0;
+}
+
+.md-typeset .grid.cards > ul > li {
+  background: #ffffff;
+  border: 1px solid #acadad26;
+  padding: 1.5rem;
+  transition: border-color 0.2s;
+}
+
+.md-typeset .grid.cards > ul > li:hover {
+  border-color: #00FF41;
+}
+
+/* Green icon color in cards */
+.md-typeset .grid.cards .twemoji svg,
+.md-typeset .grid.cards .emojione svg {
+  fill: #00FF41;
+}
+
+/* --- Admonitions --- */
+.md-typeset .admonition,
+.md-typeset details {
+  border-radius: 0;
+  border-left: 3px solid #00FF41;
+}
+
+/* --- Tables --- */
+.md-typeset table:not([class]) {
+  border-radius: 0;
+}
+
+.md-typeset table:not([class]) th {
+  background-color: #f0f1f1;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: #5a5c5c;
+}
+
+/* --- Home page hero --- */
+.md-typeset hr {
+  border-color: #acadad26;
+  margin: 2.5rem 0;
+}
+
+/* Signal Green on Search highlight */
+.md-search-result mark {
+  background-color: #00FF4133;
+  color: inherit;
+}
+
+/* --- Footer --- */
+.md-footer {
+  background-color: #0b0e14;
+}
+
+.md-footer-meta {
+  background-color: #060810;
+}

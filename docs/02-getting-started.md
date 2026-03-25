@@ -91,8 +91,8 @@ sequenceDiagram
 
 Now that you have executed your first flow, you are ready to explore the core building blocks that allow for high-end AI orchestration:
 
-* [**Core Concepts**](https://www.google.com/search?q=03-core-concepts.md)**:** Deep dive into Blocks, Chains, and Flows.  
-* [**Failure Strategies**](https://www.google.com/search?q=06-failure-strategies-and-compensation.md)**:** Learn how to implement robust rollbacks and retries.  
-* [**AI Integration**](https://www.google.com/search?q=07-ai-first-orchestration.md)**:** Connect your LLMs to VibeBlocks for dynamic tool execution.
+* [**Core Concepts**](03-core-concepts.md): Deep dive into Blocks, Chains, and Flows.
+* [**Failure Strategies**](05-failure-and-compensation.md): Learn how to implement robust rollbacks and retries.
+* [**AI Integration**](06-ai-dynamic-flows.md): Connect your LLMs to VibeBlocks.
 
 *Engineered with precision by AA Digital Business. High-end AI Architecture.*

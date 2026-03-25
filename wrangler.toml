@@ -1,11 +1,2 @@
 name = "vibeblocks"
-compatibility_date = "2026-02-28"
-workers_dev = true
-preview_urls = true
-
-[assets]
-directory = "./site"
-
-[[routes]]
-pattern = "vibeblocks.aadigitalbusiness.com"
-custom_domain = true
+pages_build_output_dir = "site"

@@ -18,14 +18,16 @@ VibeBlocks solves this by providing a high-level orchestration layer that treats
 
 VibeBlocks utilizes a composite pattern to organize logic into a hierarchical structure. This allows for both simplicity in small tasks and extreme scalability in complex enterprise workflows.
 
-graph TD  
-    A\[ExecutionContext\] \--\> B\[Flow Orchestrator\]  
-    B \--\> C\[Chain: Linear Sequence\]  
-    B \--\> D\[Block: Atomic Task\]  
-    C \--\> D1\[Block A\]  
-    C \--\> D2\[Block B\]  
-    D \--\> E\[Retry Policy\]  
-    D \--\> F\[Compensation Logic\]
+```mermaid
+graph TD
+    A[ExecutionContext] --> B[Flow Orchestrator]
+    B --> C[Chain: Linear Sequence]
+    B --> D[Block: Atomic Task]
+    C --> D1[Block A]
+    C --> D2[Block B]
+    D --> E[Retry Policy]
+    D --> F[Compensation Logic]
+```
 
 ## **Strategic Positioning**
 
