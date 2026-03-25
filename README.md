@@ -1,3 +1,5 @@
+<!-- @format -->
+
 # VibeBlocks
 
 **AI-First Orchestration for Python.**
@@ -15,7 +17,6 @@ VibeBlocks evolves the concept of task orchestration into an AI-ready framework.
 ```bash
 pip install vibeblocks
 ```
-
 
 ## Quick Start
 

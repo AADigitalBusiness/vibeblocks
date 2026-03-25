@@ -12,7 +12,8 @@ Welcome to the official documentation for **VibeBlocks**, the framework-agnostic
 
 * [**04\. Execution Runtime**](https://www.google.com/search?q=04-execution-runtime.md): Comparative analysis of Sync vs. Async engines and safety guard implementation.  
 * [**05\. Failure & Compensation**](https://www.google.com/search?q=05-failure-and-compensation.md): Mastering the Saga Pattern, retry policies, and automated state rollbacks.  
-* [**06\. AI & Dynamic Flows**](https://www.google.com/search?q=06-ai-dynamic-flows.md): Bridging LLM planning with deterministic, schema-based execution.
+* [**05\.1\. Nested Flows**](05.1-nested-flows.md): Composing Flows within Flows — failure isolation, async propagation, and saga-style compensation across levels.  
+* [**06\. AI & Dynamic Flows**](https://www.google.com/search?q=06-ai-dynamic-flows.md): Bridging LLM planning with deterministic, schema-based execution.  
 
 ## **3\. Reference & Evaluation**
 

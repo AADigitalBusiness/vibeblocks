@@ -83,9 +83,7 @@ test = [
   "pytest",
 ]
 docs = [
-  "sphinx",
-  "myst-parser",
-  "sphinx-rtd-theme",
+  "mkdocs-material",
 ]
 release = [
   "build",
@@ -94,9 +92,7 @@ release = [
 ]
 dev = [
   "pytest",
-  "sphinx",
-  "myst-parser",
-  "sphinx-rtd-theme",
+  "mkdocs-material",
   "ruff",
   "build",
   "hatchling",
