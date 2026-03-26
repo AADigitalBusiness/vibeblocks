@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.4] - 2026-03-26
+
+### Added
+- MkDocs-based documentation site and deployment workflow, including an expanded docs structure and new dedicated pages such as nested flows (`05.1-nested-flows.md`).
+- Cloudflare Wrangler configuration (`wrangler.toml`) and related docs deployment support.
+
+### Changed
+- Documentation experience overhaul with improved navigation, landing pages, and visual presentation across the docs site.
+- Syntax highlighting and code block styling were refined for more consistent theme rendering.
+- Optional documentation dependencies were migrated from Sphinx tooling to `mkdocs-material` in `pyproject.toml` (`docs` and `dev` extras).
+
 ## [0.1.3] - 2026-03-11
 
 ### Added

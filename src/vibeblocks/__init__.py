@@ -1,4 +1,4 @@
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 
 from vibeblocks.core.context import ExecutionContext
 from vibeblocks.components.block import Block
