@@ -1,0 +1,19 @@
+<div style="display: flex; align-items: center; gap: 0.8rem;">
+  <!-- Componente original del repositorio -->
+  <a href="{{ config.repo_url }}" title="{{ lang.t('source') }}" class="md-source" data-md-component="source">
+    <div class="md-source__icon md-icon">
+      {% set icon = config.theme.icon.repo or "fontawesome/brands/git-alt" %}
+      {% include ".icons/" ~ icon ~ ".svg" %}
+    </div>
+    <div class="md-source__repository">
+      {{ config.repo_name }}
+    </div>
+  </a>
+
+  <!-- Badge de PyPI Downloads -->
+  <a href="https://pepy.tech/projects/vibeblocks" title="PyPI Downloads" style="display: flex; align-items: center; margin-top: 0.2rem;">
+    <img src="https://static.pepy.tech/personalized-badge/vibeblocks?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=BRIGHTGREEN&left_text=Downloads" 
+         alt="PyPI Downloads" 
+         style="height: 20px; width: auto; border-radius: 2px;">
+  </a>
+</div>

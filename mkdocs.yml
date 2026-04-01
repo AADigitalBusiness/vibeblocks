@@ -1,3 +1,5 @@
+# @format
+
 site_name: VibeBlocks
 site_description: Lightweight Python workflow orchestration library for AI agents, async task execution, retries, and failure-safe automation.
 site_url: https://vibeblocks.aadigitalbusiness.com
@@ -38,6 +40,7 @@ theme:
     - toc.follow
   icon:
     repo: fontawesome/brands/github
+  custom_dir: custom
 
 extra_css:
   - stylesheets/vibeblocks.css
@@ -92,4 +95,4 @@ extra:
     - icon: fontawesome/brands/python
       link: https://pypi.org/project/vibeblocks/
 
-copyright: Copyright &copy; 2024 AA Digital Business
+copyright: Copyright &copy; 2026 AA Digital Business
