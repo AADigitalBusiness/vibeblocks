@@ -1,6 +1,7 @@
 import pytest
+import dataclasses
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Union
 from vibeblocks.components.block import Block
 from vibeblocks.components.flow import Flow
 from vibeblocks.utils.schema import generate_function_schema
@@ -13,6 +14,7 @@ class UserContext:
     user_id: int
     email: str
     active: bool = False
+    nickname: Optional[str] = None
 
 
 def test_flow_manifest():
@@ -46,6 +48,13 @@ def test_schema_generation():
     data_props = schema["parameters"]["properties"]["initial_data"]["properties"]
     assert "user_id" in data_props
     assert "email" in data_props
+    assert "nickname" in data_props
+    assert data_props["nickname"]["type"] == "string"
+
+    required_fields = schema["parameters"]["properties"]["initial_data"]["required"]
+    assert "user_id" in required_fields
+    assert "email" in required_fields
+    assert "nickname" not in required_fields
 
 
 def test_vibeblocks_dynamic_execution():
@@ -69,3 +78,27 @@ def test_vibeblocks_dynamic_execution():
 
     assert result.status == "SUCCESS"
     assert result.context.data["val"] == 2
+
+
+def test_schema_optional_and_union_types():
+    @dataclass
+    class ComplexContext:
+        mandatory_maybe: Optional[float] = dataclasses.field() # Required because no default
+        maybe_int: Optional[int] = None
+        maybe_str: Union[str, None] = "default"
+
+    def dummy_block(ctx): pass
+    b = Block("dummy", dummy_block)
+    flow = Flow("ComplexFlow", [b], description="Complex schema test")
+
+    schema = generate_function_schema(flow.get_manifest(), ComplexContext)
+    data_props = schema["parameters"]["properties"]["initial_data"]["properties"]
+    required_fields = schema["parameters"]["properties"]["initial_data"]["required"]
+
+    assert data_props["maybe_int"]["type"] == "integer"
+    assert data_props["maybe_str"]["type"] == "string"
+    assert data_props["mandatory_maybe"]["type"] == "number"
+
+    assert "maybe_int" not in required_fields
+    assert "maybe_str" not in required_fields
+    assert "mandatory_maybe" in required_fields
